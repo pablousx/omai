@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "settings": {
+    "codex": { "model_reasoning_effort": "high" },
+    "claude": { "language": "English" },
+    "opencode": { "autoupdate": false }
+  },
+  "mcp": {},
+  "hooks": {},
+  "plugins": {},
+  "personal": {}
+}

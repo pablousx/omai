@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "health": "healthy",
+  "configured": true,
+  "remote_configured": true,
+  "daemon": true,
+  "paused": false,
+  "pending": false,
+  "last_sync": "2026-09-08T12:00:00Z",
+  "last_apply": "2026-09-08T12:00:00Z",
+  "generation": 12,
+  "backup_bytes": 32768,
+  "backup_count": 8,
+  "providers": [
+    {
+      "name": "codex",
+      "detected": true,
+      "managed": 12,
+      "instructions": 1,
+      "settings": 4,
+      "skills": 2,
+      "mcp": 2
+    },
+    {
+      "name": "claude",
+      "detected": true,
+      "managed": 12,
+      "instructions": 1,
+      "settings": 3,
+      "skills": 2,
+      "mcp": 2
+    },
+    {
+      "name": "opencode",
+      "detected": true,
+      "managed": 10,
+      "instructions": 1,
+      "settings": 3,
+      "skills": 1,
+      "mcp": 2
+    }
+  ],
+  "machines": [
+    {
+      "name": "This computer",
+      "local": true
+    },
+    {
+      "name": "Work laptop",
+      "local": false
+    }
+  ],
+  "conflicts": [],
+  "warnings": []
+}

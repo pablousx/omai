@@ -1,0 +1,31 @@
+[tools]
+go = "1.26.6"
+
+[tasks.build]
+run = "go build -buildvcs=false -trimpath -o build/relai ./cmd/relai"
+
+[tasks.test]
+run = "go test -race ./..."
+
+[tasks.validate]
+run = "omarchy plugin validate ."
+
+[tasks.e2e]
+depends = ["build"]
+run = "python3 scripts/test-e2e.py build/relai"
+
+[tasks.qml]
+run = "python3 scripts/test-qml.py"
+
+[tasks.install-test]
+depends = ["build"]
+run = "python3 scripts/test-install.py build/relai"
+
+[tasks.release]
+run = "python3 scripts/package-release.py"
+
+[tasks.check]
+run = "scripts/check"
+
+[tasks.audit]
+run = "go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./..."

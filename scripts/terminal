@@ -1,0 +1,8 @@
+#!/bin/bash
+set -uo pipefail
+relai_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+"$relai_root/scripts/relai" "$@"
+relai_result=$?
+printf '\nPress Enter to close.'
+read -r _
+exit "$relai_result"

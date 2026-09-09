@@ -1,0 +1,6 @@
+{
+  "debug.javascript.defaultRuntimeExecutable": {
+    "pwa-node": "/home/pablousx/.local/share/mise/shims/node"
+  },
+  "oxc.path.node": "/home/pablousx/.local/share/mise/shims/node"
+}

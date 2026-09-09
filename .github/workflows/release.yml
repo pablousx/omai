@@ -1,0 +1,57 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: relai-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+  native:
+    # This dedicated test account must have Omarchy and a Wayland session.
+    # Never route untrusted pull requests to this runner.
+    if: github.repository == 'pablousx/relai' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: [self-hosted, Linux, X64, omarchy]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Validate exact tagged plugin with native host
+        run: |
+          omarchy version
+          omarchy plugin validate .
+          python3 scripts/test-qml.py --screenshots build/native-preview
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-preview
+          path: build/native-preview/*.png
+          if-no-files-found: error
+  draft:
+    needs: [checks, native]
+    if: github.repository == 'pablousx/relai' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - id: toolchain
+        run: python3 -c 'import tomllib; print("version=" + tomllib.load(open("mise.toml", "rb"))["tools"]["go"])' >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: ${{ steps.toolchain.outputs.version }}
+          cache: true
+      - name: Package exact version
+        run: python3 scripts/package-release.py --tag "$GITHUB_REF_NAME"
+      - name: Create reviewable draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --verify-tag --draft --title "Relai $GITHUB_REF_NAME" --notes-file docs/release-notes.md build/release/*.tar.gz build/release/SHA256SUMS LICENSE

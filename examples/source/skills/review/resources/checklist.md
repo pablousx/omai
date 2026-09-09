@@ -1,0 +1,4 @@
+- Check inputs at boundaries.
+- Look for partial writes and interrupted operations.
+- Check whether concurrent updates can overwrite each other.
+- Verify that failure leaves a recoverable state.
