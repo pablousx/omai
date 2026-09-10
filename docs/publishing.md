@@ -12,7 +12,7 @@ The native release job is mandatory. Without an available runner and a passing Q
 
 ## Prepare a release
 
-1. Update `manifest.json`, the Go `Version` constant, the launcher's setup status, and the status fixture together. `scripts/check-release.py` checks production version consistency. Keep canonical/local schema versions at `1` unless an explicit migration is implemented.
+1. Update `manifest.json`, the Go `Version` constant, the launcher's setup status, `tests/fixtures/status.json`, and the successful-version literals/assertions in `scripts/test-qml.py` together. Preserve deliberately mismatched versions and historical documentation. `scripts/check-release.py` checks production version consistency; the native suite additionally checks QML fixture agreement. Keep canonical/local schema versions at `1` unless an explicit migration is implemented.
 2. Update the changelog, release notes, compatibility record, and any affected operations instructions. The Go toolchain pin lives only in `mise.toml`; CI and source setup read it there.
 3. Run `mise run check`, `mise run audit`, and `mise run qml`. Verify clean setup, relay between two disposable machines, update/recovery, and service removal. The installer tests simulate release downloads, systemd, failed activation, and a killed updater.
 4. Run `mise run release`. Inspect `build/release/omai_VERSION_linux_amd64.tar.gz` and `SHA256SUMS`; the archive contains only `omai` and `LICENSE`. Build twice if changing packaging to verify deterministic checksums.
@@ -35,3 +35,13 @@ After the public release is downloadable, use the [official submission form](htt
 Maintainer notes should explain the companion download and checksum verification, Git and Python requirements, the explicit setup action before configuration changes, optional Git remote, and service removal. The website, privacy policy, and terms are linked from the README. Complete the form's ownership, documentation, consent, and license checklist from the actual release contents.
 
 Watch the submission's automated validation and address any reported fixes. Marketplace listing requires maintainer approval; a submitted or validated issue is not yet an approved listing.
+
+## Update the published plugin
+
+Publish runtime changes under a new release version using the same preparation, tag, native gate, draft inspection, and public-download checks. Do not replace previously published assets or reuse a public version for changed runtime code. Normal source changes follow the PR and required-check process in [GITHUB_SETUP.md](../GITHUB_SETUP.md).
+
+For an already listed plugin, the marketplace currently uses its [verification form](https://github.com/omacom/omarchy-plugin-marketplace/issues/new?template=verify-plugin.yml): choose **Verify and publish a newer upstream commit**, identify `pablousx.omai`, and supply the full target SHA. A source push or GitHub release does not automatically promote the marketplace snapshot. Inspect the current [verification guide](https://github.com/omacom/omarchy-plugin-marketplace/blob/main/VERIFICATION.md) and any existing omai request before submitting. The initial listing request is [#6131](https://github.com/omacom/omarchy-plugin-marketplace/issues/6131); check its live state rather than assuming it has been approved.
+
+Updating a user's machine is a separate operation: update the installed Git checkout with `omarchy plugin update pablousx.omai --yes`, then use **Update omai** in the panel (or the installed `scripts/plugin-setup update` bridge for an authorized unattended update). Verify the companion and manifest agree and preserve paused/stopped service state. See the [local-install skill](../skills/omai-local-install/SKILL.md).
+
+The [release skill](../skills/omai-release/SKILL.md) has task-specific guidance for version coordination, an isolated ephemeral native runner, draft verification, and marketplace submissions/updates. It does not authorize publication by itself.

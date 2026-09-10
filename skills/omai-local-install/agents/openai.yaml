@@ -1,0 +1,4 @@
+interface:
+  display_name: "omai local installation"
+  short_description: "Install and update omai on this desktop"
+  default_prompt: "Use $omai-local-install to install or update omai locally and verify the resulting state."
