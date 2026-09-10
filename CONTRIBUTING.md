@@ -33,3 +33,7 @@ For compiler or headless development, the lower-level commands remain available:
 These are developer/automation interfaces, not a second step in plugin onboarding. `--build-only` builds and installs only the executable. Source builds run with the pinned compiler in a temporary directory outside the checkout. Custom XDG paths must be absolute.
 
 Pull requests should explain the concrete problem, resulting behavior, and relevant validation. File ordinary bugs with a minimal non-secret reproduction, omai version, Omarchy version, and expected/actual behavior. See [SECURITY.md](SECURITY.md) for sensitive reports and [publishing](docs/publishing.md) for release maintenance.
+
+## Community and repository checks
+
+Follow the [code of conduct](CODE_OF_CONDUCT.md). See [GitHub repository configuration](GITHUB_SETUP.md) for community-file validation, required checks, maintainer bypass, and the shared setup script. Existing project checks above remain required.
