@@ -2,7 +2,7 @@
 
 **Your AI setup, in sync.**
 
-[Website](https://sites.steralynx.com/omai/) · [Privacy](site/privacy.html) · [Terms](site/terms.html)
+[Website](https://pablousx.github.io/omai/) · [Privacy](site/privacy.html) · [Terms](site/terms.html)
 
 omai is an Omarchy shell plugin that synchronizes global configuration for Codex, Claude Code, and OpenCode. One editable source preserves each provider’s native configuration across computers. A companion daemon imports supported provider-side edits, applies changes locally while offline, and synchronizes through an ordinary Git remote.
 

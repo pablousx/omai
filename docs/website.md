@@ -24,6 +24,6 @@ The September 10, 2026 browser review covered all three pages at 320, 390, 760, 
 
 The workflow publishes only `site/` and runs manually. Application source, local configuration, and build artifacts are outside the uploaded directory. Regular pushes run checks but do not publish the website.
 
-The canonical URL is `https://sites.steralynx.com/omai/`, following the existing user site's custom domain and the `omai` project repository path. Relative asset and navigation URLs also work at `https://pablousx.github.io/omai/`. Keep the custom domain on the parent user site; this project does not need a `CNAME` file. If the public URL changes, update the canonical and Open Graph URLs in all three HTML pages.
+The canonical URL is `https://pablousx.github.io/omai/`, matching this repository’s GitHub Pages configuration. Relative asset and navigation URLs work under the `/omai/` project path and during local preview. No `CNAME` file is needed. If a custom domain is configured later, update the canonical and Open Graph URLs in all three HTML pages and the README website link.
 
 Review privacy and terms against actual application behavior before publication and whenever data handling changes. Hosting is covered by [GitHub's privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). Deployment follows [GitHub's custom Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
