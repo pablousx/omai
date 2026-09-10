@@ -1,0 +1,4 @@
+interface:
+  display_name: "omai debugging"
+  short_description: "Diagnose sync, UI, and recovery failures"
+  default_prompt: "Use $omai-debugging to diagnose the reported omai failure and verify a targeted fix."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "omai website"
+  short_description: "Maintain the static site and GitHub Pages"
+  default_prompt: "Use $omai-website to maintain omai’s website and deploy it when requested."

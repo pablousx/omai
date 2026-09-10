@@ -34,6 +34,14 @@ These are developer/automation interfaces, not a second step in plugin onboardin
 
 Pull requests should explain the concrete problem, resulting behavior, and relevant validation. File ordinary bugs with a minimal non-secret reproduction, omai version, Omarchy version, and expected/actual behavior. See [SECURITY.md](SECURITY.md) for sensitive reports and [publishing](docs/publishing.md) for release maintenance.
 
+## Agent maintenance guides
+
+[AGENTS.md](AGENTS.md) is the project entry point for coding agents. The versioned skills in [skills/](skills/) cover development, debugging, releases and marketplace updates, local installation/updates, and the static website. They refer to this repository's existing runbooks rather than maintaining separate copies of product documentation. Read the relevant `SKILL.md` directly if the agent host does not discover repository skills automatically.
+
+For Codex discovery on a development machine, optionally link these five skill directories into `${CODEX_HOME:-$HOME/.codex}/skills/`. Resolve this checkout's absolute path first, keep the tracked sources here, and never overwrite an existing unrelated skill. Recreate links if the checkout moves; do not link to the watched installed-plugin copy. Root AGENTS routing works without global installation.
+
+When editing these guides, use the available skill-creator validator for each changed skill, verify local Markdown references and UI metadata, and run `python3 .github/scripts/check_repository.py` plus `git diff --check`. A prose-only maintenance update does not require installing omai, creating a new release, or running the entire native suite.
+
 ## Community and repository checks
 
 Follow the [code of conduct](CODE_OF_CONDUCT.md). See [GitHub repository configuration](GITHUB_SETUP.md) for community-file validation, required checks, maintainer bypass, and the shared setup script. Existing project checks above remain required.
