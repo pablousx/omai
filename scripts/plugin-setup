@@ -1,27 +1,27 @@
 #!/bin/bash
 # Noninteractive bridge used by the plugin's setup form and update button.
 set -euo pipefail
-relai_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-relai_mode=${1:-}
+omai_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+omai_mode=${1:-}
 shift || true
-[[ $relai_mode == setup || $relai_mode == update ]] || { printf '%s\n' 'Expected setup or update.' >&2; exit 1; }
-relai_source=()
-if [[ ${1:-} == --source ]]; then relai_source=(--source); shift; fi
-relai_binary="${XDG_DATA_HOME:-$HOME/.local/share}/relai/bin/relai"
-command -v python3 >/dev/null || { printf '%s\n' 'Python 3 is required to install Relai.' >&2; exit 1; }
-relai_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$relai_root/manifest.json")
-relai_installed=$("$relai_binary" version 2>/dev/null || true)
-if [[ $relai_mode == update || $relai_installed != "$relai_version" || ${#relai_source[@]} -gt 0 ]]; then
-  printf '%s\n' 'Preparing Relai…'
-  "$relai_root/scripts/setup" --install-only "${relai_source[@]}"
+[[ $omai_mode == setup || $omai_mode == update ]] || { printf '%s\n' 'Expected setup or update.' >&2; exit 1; }
+omai_source=()
+if [[ ${1:-} == --source ]]; then omai_source=(--source); shift; fi
+omai_binary="${XDG_DATA_HOME:-$HOME/.local/share}/omai/bin/omai"
+command -v python3 >/dev/null || { printf '%s\n' 'Python 3 is required to install omai.' >&2; exit 1; }
+omai_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$omai_root/manifest.json")
+omai_installed=$("$omai_binary" version 2>/dev/null || true)
+if [[ $omai_mode == update || $omai_installed != "$omai_version" || ${#omai_source[@]} -gt 0 ]]; then
+  printf '%s\n' 'Preparing omai…'
+  "$omai_root/scripts/setup" --install-only "${omai_source[@]}"
 fi
-if [[ $relai_mode == setup ]]; then
-  for relai_command in git systemctl; do
-    command -v "$relai_command" >/dev/null || { printf 'Setup requires %s.\n' "$relai_command" >&2; exit 1; }
+if [[ $omai_mode == setup ]]; then
+  for omai_command in git systemctl; do
+    command -v "$omai_command" >/dev/null || { printf 'Setup requires %s.\n' "$omai_command" >&2; exit 1; }
   done
   printf '%s\n' 'Saving configuration and starting sync…'
-  "$relai_binary" setup --yes "$@"
+  "$omai_binary" setup --yes "$@"
   printf '%s\n' 'Setup complete.'
 else
-  printf '%s\n' 'Relai is up to date.'
+  printf '%s\n' 'omai is up to date.'
 fi

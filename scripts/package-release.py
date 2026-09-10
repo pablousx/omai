@@ -23,18 +23,18 @@ if actual != "go" + pin:
     raise SystemExit(f"Release builds require Go {pin}; found {actual}. Run through mise.")
 out = args.output.resolve()
 out.mkdir(parents=True, exist_ok=True)
-binary = out / "relai"
+binary = out / "omai"
 env = dict(os.environ, CGO_ENABLED="0", GOOS="linux", GOARCH="amd64", GOTOOLCHAIN="local", GOAMD64="v1", GOEXPERIMENT="", GOFLAGS="", GOWORK="off")
-subprocess.run(["go", "build", "-buildvcs=false", "-mod=readonly", "-trimpath", "-ldflags=-s -w", "-o", str(binary), "./cmd/relai"], cwd=root, env=env, check=True)
+subprocess.run(["go", "build", "-buildvcs=false", "-mod=readonly", "-trimpath", "-ldflags=-s -w", "-o", str(binary), "./cmd/omai"], cwd=root, env=env, check=True)
 check = ["python3", str(root / "scripts/check-release.py"), "--binary", str(binary)]
 if args.tag:
     check += ["--tag", args.tag]
 subprocess.run(check, check=True)
-archive = out / f"relai_{version}_linux_amd64.tar.gz"
+archive = out / f"omai_{version}_linux_amd64.tar.gz"
 with archive.open("wb") as file:
     with gzip.GzipFile(filename="", mode="wb", fileobj=file, mtime=0) as zipped:
         with tarfile.open(fileobj=zipped, mode="w", format=tarfile.USTAR_FORMAT) as bundle:
-            for name, path, mode in [("LICENSE", root / "LICENSE", 0o644), ("relai", binary, 0o755)]:
+            for name, path, mode in [("LICENSE", root / "LICENSE", 0o644), ("omai", binary, 0o755)]:
                 data = path.read_bytes()
                 info = tarfile.TarInfo(name)
                 info.size, info.mode, info.mtime = len(data), mode, 0

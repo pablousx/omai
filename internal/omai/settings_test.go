@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"os"
@@ -55,11 +55,11 @@ func TestClearSettingsThenSetupReusesSource(t *testing.T) {
 	if e := p.ClearSettings(); e != nil {
 		t.Fatal(e)
 	}
-	if e := p.Setup(SetupOptions{Remote: "git@example.com:new/relai.git", Machine: "New label"}); e != nil {
+	if e := p.Setup(SetupOptions{Remote: "git@example.com:new/omai.git", Machine: "New label"}); e != nil {
 		t.Fatal(e)
 	}
 	c, e := p.LoadConfig()
-	if e != nil || c.Remote != "git@example.com:new/relai.git" || c.Machine != "New label" || get(t, filepath.Join(p.Source, "instructions.md")) != "Existing source\n" {
+	if e != nil || c.Remote != "git@example.com:new/omai.git" || c.Machine != "New label" || get(t, filepath.Join(p.Source, "instructions.md")) != "Existing source\n" {
 		t.Fatal("setup did not preserve source with new preferences", c, e)
 	}
 }

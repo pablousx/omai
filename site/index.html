@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>omai — Your AI setup, in sync.</title>
+    <meta
+      name="description"
+      content="Global instructions, settings, skills, and MCPs for Codex, Claude Code, and OpenCode. In sync from your Omarchy desktop."
+    />
+    <meta name="theme-color" content="#1a1b26" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="omai — Your AI setup, in sync." />
+    <meta
+      property="og:description"
+      content="Global instructions, settings, skills, and MCPs for Codex, Claude Code, and OpenCode. In sync from your Omarchy desktop."
+    />
+    <meta property="og:site_name" content="omai" />
+    <meta property="og:url" content="https://sites.steralynx.com/omai/" />
+    <link rel="canonical" href="https://sites.steralynx.com/omai/" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/site.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="omai home"
+          ><svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path
+              d="M16 2c1.8 8.6 5.4 12.2 14 14-8.6 1.8-12.2 5.4-14 14C14.2 21.4 10.6 17.8 2 16 10.6 14.2 14.2 10.6 16 2Z"
+              fill="currentColor"
+            /></svg
+          ><span>omai<span class="accent">.</span></span></a
+        >
+        <nav class="site-nav" aria-label="Main navigation">
+          <a class="desktop-link" href="index.html#how-it-works">How it works</a
+          ><a href="index.html#install">Install</a
+          ><a href="https://github.com/pablousx/omai"
+            >GitHub <span aria-hidden="true">↗</span></a
+          ><button
+            class="theme-button"
+            type="button"
+            data-theme-toggle
+            hidden
+            aria-label="Change color theme"
+          >
+            <span class="theme-swatch" aria-hidden="true"></span
+            ><span data-theme-name>Tokyo Night</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div class="container">
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-grid">
+            <div>
+              <div class="eyebrow">
+                <span class="status-dot" aria-hidden="true"></span>At home on
+                Omarchy
+              </div>
+              <h1 id="hero-title">
+                Your tools.<br />Your setup.<br /><span class="accent"
+                  >Everywhere.</span
+                >
+              </h1>
+              <p class="hero-copy">
+                A familiar AI setup, on every computer. Keep your global
+                instructions, settings, skills, and MCPs in sync—from one quiet
+                corner of your desktop.
+              </p>
+              <div class="hero-actions">
+                <a class="button" href="#install"
+                  >Get omai <span aria-hidden="true">↗</span></a
+                ><a class="text-link" href="https://github.com/pablousx/omai"
+                  >Read the source ↗</a
+                >
+              </div>
+              <div class="compat">
+                <span class="file-pill">Codex</span
+                ><span class="file-pill sheet">Claude Code</span
+                ><span class="file-pill slides">OpenCode</span>
+              </div>
+              <p class="small-note">Free &amp; open source · Linux · MIT</p>
+            </div>
+            <div class="preview">
+              <div class="desktop">
+                <div class="desktop-bar" aria-hidden="true">
+                  <span
+                    ><span class="workspace-number">1</span>&nbsp; 2 &nbsp; 3
+                    &nbsp; / &nbsp; build</span
+                  ><span>✦ &nbsp; ◇ &nbsp; 09:41</span>
+                </div>
+                <div class="omai-wallpaper" aria-hidden="true">
+                  <span>✦</span>
+                </div>
+                <div class="app-window">
+                  <div class="app-title">
+                    <strong><span class="window-mark">✦</span> omai</strong
+                    ><span class="preview-badge">PREVIEW</span>
+                  </div>
+                  <div
+                    class="demo-tabs"
+                    role="tablist"
+                    aria-label="Explore sample sync states"
+                    data-demo-tabs
+                    hidden
+                  >
+                    <button
+                      type="button"
+                      id="tab-sync"
+                      role="tab"
+                      data-demo-tab
+                      aria-selected="true"
+                      aria-controls="demo-sync"
+                    >
+                      In sync</button
+                    ><button
+                      type="button"
+                      id="tab-offline"
+                      role="tab"
+                      data-demo-tab
+                      aria-selected="false"
+                      aria-controls="demo-offline"
+                      tabindex="-1"
+                    >
+                      Offline</button
+                    ><button
+                      type="button"
+                      id="tab-conflict"
+                      role="tab"
+                      data-demo-tab
+                      aria-selected="false"
+                      aria-controls="demo-conflict"
+                      tabindex="-1"
+                    >
+                      A conflict
+                    </button>
+                  </div>
+                  <div
+                    id="demo-sync"
+                    class="omai-demo"
+                    role="tabpanel"
+                    aria-labelledby="tab-sync"
+                    tabindex="0"
+                  >
+                    <div class="sync-status">
+                      <span class="state-symbol" aria-hidden="true">✓</span
+                      ><strong>Your setup is up to date</strong>
+                      <p>
+                        Changes sync in the background.<br />You can keep
+                        working.
+                      </p>
+                    </div>
+                    <div class="preview-providers">
+                      <div>
+                        <strong>Codex</strong><span>2 skills · 3 settings</span>
+                      </div>
+                      <div>
+                        <strong>Claude Code</strong
+                        ><span>1 instruction · 2 MCPs</span>
+                      </div>
+                      <div>
+                        <strong>OpenCode</strong
+                        ><span>1 skill · 2 settings</span>
+                      </div>
+                    </div>
+                    <div class="preview-bottom">
+                      <span class="accent">●</span> Automatic sync on
+                      <span>Just now</span>
+                    </div>
+                  </div>
+                  <div
+                    id="demo-offline"
+                    class="omai-demo"
+                    role="tabpanel"
+                    aria-labelledby="tab-offline"
+                    tabindex="0"
+                    hidden
+                  >
+                    <div class="sync-status is-offline">
+                      <span class="state-symbol" aria-hidden="true">◷</span
+                      ><strong>Your changes are safe here</strong>
+                      <p>
+                        The remote is unavailable.<br />omai will retry when
+                        connected.
+                      </p>
+                    </div>
+                    <div class="preview-list">
+                      <p>
+                        <span class="accent">✓</span> Applied to your local
+                        tools
+                      </p>
+                      <p>
+                        <span class="accent">✓</span> Saved on this computer
+                      </p>
+                      <p>
+                        <span class="orange">◷</span> Waiting to reach your
+                        remote
+                      </p>
+                    </div>
+                    <div class="preview-bottom">
+                      Keep working offline<span>No action needed</span>
+                    </div>
+                  </div>
+                  <div
+                    id="demo-conflict"
+                    class="omai-demo"
+                    role="tabpanel"
+                    aria-labelledby="tab-conflict"
+                    tabindex="0"
+                    hidden
+                  >
+                    <div class="sync-status is-conflict">
+                      <span class="state-symbol" aria-hidden="true">⇄</span
+                      ><strong>You choose what to keep</strong>
+                      <p>
+                        Both computers edited this file.<br />Both versions are
+                        saved.
+                      </p>
+                    </div>
+                    <div class="preview-file">codex / instructions.md</div>
+                    <div class="version-pair">
+                      <div>
+                        <span>THIS COMPUTER</span>
+                        <p>Keep responses concise.</p>
+                      </div>
+                      <div>
+                        <span>REMOTE VERSION</span>
+                        <p>Include short examples.</p>
+                      </div>
+                    </div>
+                    <div class="preview-bottom">
+                      Review, choose, confirm.<span>Your decision.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="preview-caption">
+                Interactive preview · sample configuration, not your device.
+              </p>
+            </div>
+          </div>
+        </section>
+        <div class="principles" aria-label="Project principles">
+          <span><b>01</b> Your Git remote</span
+          ><span><b>02</b> Works locally</span
+          ><span><b>03</b> No omai account</span
+          ><span><b>04</b> Open source</span>
+        </div>
+        <section
+          class="section"
+          id="what-syncs"
+          aria-labelledby="coverage-title"
+        >
+          <div class="section-heading">
+            <div>
+              <div class="section-number">01 / YOUR SETUP, TOGETHER</div>
+              <h2 id="coverage-title">
+                Pick up where you left off<span class="accent">.</span>
+              </h2>
+            </div>
+            <p>
+              Each provider keeps its own configuration. A shared workflow
+              doesn’t have to mean identical tools.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article>
+              <span class="feature-mark" aria-hidden="true"
+                ><svg viewBox="0 0 32 32">
+                  <path d="M3 23 11 5l8 18M6 17h10M20 12h7M23.5 12v11" /></svg
+              ></span>
+              <h3>Instructions &amp; rules</h3>
+              <p>
+                The global guidance that makes each tool feel like yours,
+                including native rules.
+              </p>
+              <code>AGENTS.md · CLAUDE.md</code>
+            </article>
+            <article>
+              <span class="feature-mark" aria-hidden="true"
+                ><svg viewBox="0 0 32 32">
+                  <path
+                    d="m5 9 11-5 11 5-11 5ZM5 16l11 5 11-5M5 23l11 5 11-5"
+                  /></svg
+              ></span>
+              <h3>Skills &amp; resources</h3>
+              <p>
+                Your reusable skills and their supporting text files, ready on
+                another computer.
+              </p>
+              <code>SKILL.md + supporting files</code>
+            </article>
+            <article>
+              <span class="feature-mark" aria-hidden="true"
+                ><svg viewBox="0 0 32 32">
+                  <path d="M4 8h9m6 0h9M4 16h17m6 0h1M4 24h3m6 0h15" />
+                  <path d="M13 5v6h6V5ZM21 13v6h6v-6ZM7 21v6h6v-6Z" /></svg
+              ></span>
+              <h3>Tool preferences</h3>
+              <p>
+                Supported global model, reasoning, permission, and interface
+                preferences.
+              </p>
+              <code>Provider-specific settings</code>
+            </article>
+            <article>
+              <span class="feature-mark" aria-hidden="true"
+                ><svg viewBox="0 0 32 32">
+                  <rect x="3" y="4" width="9" height="9" />
+                  <rect x="20" y="19" width="9" height="9" />
+                  <path d="M12 8h12v11M8 13v11h12" /></svg
+              ></span>
+              <h3>MCP connections</h3>
+              <p>
+                Native server declarations and environment references.
+                Credential values stay local.
+              </p>
+              <code>Commands · URLs · options</code>
+            </article>
+          </div>
+          <p class="section-note">
+            Supported hooks, agents, commands, and plugin declarations are
+            included too.
+            <a
+              href="https://github.com/pablousx/omai/blob/main/docs/compatibility.md"
+              >Explore compatibility ↗</a
+            >
+          </p>
+        </section>
+        <section
+          class="section how-section"
+          id="how-it-works"
+          aria-labelledby="how-title"
+        >
+          <div class="section-heading">
+            <div>
+              <div class="section-number">02 / A QUIET DAILY ROUTINE</div>
+              <h2 id="how-title">
+                Set it up. Get back to work<span class="accent">.</span>
+              </h2>
+            </div>
+            <p>
+              No extra dashboard to babysit. Your bar tells you when something
+              needs attention.
+            </p>
+          </div>
+          <div class="steps">
+            <article class="step">
+              <span class="step-index">01 — CONNECT</span>
+              <h3>Choose your home base</h3>
+              <p>
+                Connect a Git repository you control, or start locally. Setup
+                happens inside the plugin window.
+              </p>
+            </article>
+            <article class="step">
+              <span class="step-index">02 — KEEP WORKING</span>
+              <h3>Edit where you already do</h3>
+              <p>
+                Change supported provider files or your editable sync source.
+                omai picks up those changes automatically.
+              </p>
+            </article>
+            <article class="step">
+              <span class="step-index">03 — MAKE IT YOURS</span>
+              <h3>Bring another computer along</h3>
+              <p>
+                Install omai there and connect the same remote. If versions
+                differ, review and choose what to keep.
+              </p>
+            </article>
+          </div>
+        </section>
+        <section class="privacy-band" aria-labelledby="ownership-title">
+          <div>
+            <div class="section-number">03 / YOUR CONFIGURATION, YOUR CALL</div>
+            <h2 id="ownership-title">
+              Your remote.<br />Your control<span class="accent">.</span>
+            </h2>
+            <p>
+              omai synchronizes through ordinary Git. There’s no omai cloud
+              account, hosted configuration database, or usage analytics in the
+              plugin.
+            </p>
+            <p>
+              Authentication stays with your Git tools and AI providers. Use a
+              trusted remote: configuration can include executable hooks and
+              commands, and content checks cannot recognize every secret.
+            </p>
+            <a class="text-link" href="privacy.html"
+              >Read the privacy policy →</a
+            >
+          </div>
+          <div class="data-flow">
+            <div class="flow-row">
+              <div class="flow-end">
+                This computer<span>Your native tools</span>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">⇄</span>
+              <div class="flow-end">
+                Your Git remote<span>Your access rules</span>
+              </div>
+            </div>
+            <div class="flow-row second-hop">
+              <div class="flow-end">
+                Your Git remote<span>Configuration history</span>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">⇄</span>
+              <div class="flow-end">
+                Another computer<span>The same familiar setup</span>
+              </div>
+            </div>
+            <p class="flow-caption">
+              Local recovery stays local. Only validated sync source enters Git.
+            </p>
+          </div>
+        </section>
+        <section class="install" id="install" aria-labelledby="install-title">
+          <div class="install-grid">
+            <div>
+              <div class="section-number">04 / ONE SMALL ADDITION</div>
+              <h2 id="install-title">
+                Make room for omai<span class="accent">.</span>
+              </h2>
+              <p class="install-copy">
+                Add the plugin to Omarchy, then do the rest in its window. Your
+                AI tools keep working as usual.
+              </p>
+              <p class="install-copy">
+                Requires Omarchy 4.0.3 or later on Linux x86-64, Git, curl,
+                Python 3.11+, and a systemd user session. Bring a Git remote to
+                sync across computers.
+              </p>
+              <a
+                class="text-link"
+                href="https://github.com/pablousx/omai#readme"
+                >Installation &amp; documentation ↗</a
+              >
+            </div>
+            <div>
+              <div class="terminal">
+                <div class="terminal-title">
+                  Terminal <span>Install the plugin</span>
+                </div>
+                <div class="command-row">
+                  <span class="prompt" aria-hidden="true">$</span
+                  ><code id="install-command"
+                    >omarchy plugin add https://github.com/pablousx/omai.git
+                    --enable --yes</code
+                  ><button
+                    class="copy-button"
+                    type="button"
+                    data-copy="install-command"
+                    data-feedback="copy-feedback"
+                    hidden
+                    aria-label="Copy installation command"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <p
+                  id="copy-feedback"
+                  class="copy-feedback"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+              </div>
+              <ol class="install-steps">
+                <li>
+                  <span
+                    ><strong>Open the ✦ icon.</strong> Choose Set up omai.</span
+                  >
+                </li>
+                <li>
+                  <span
+                    ><strong>Connect a remote or stay local.</strong> Review the
+                    import options.</span
+                  >
+                </li>
+                <li>
+                  <span
+                    ><strong>Start syncing.</strong> Setup installs the
+                    companion executable when needed.</span
+                  >
+                </li>
+              </ol>
+              <p class="release-note">
+                Setup uses the matching published release. For an unpublished
+                local checkout, the panel offers a source-build retry.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section class="section faq" aria-labelledby="faq-title">
+          <div class="faq-grid">
+            <div>
+              <div class="section-number">05 / GOOD TO KNOW</div>
+              <h2 id="faq-title">
+                A few practical details<span class="accent">.</span>
+              </h2>
+            </div>
+            <div class="faq-list">
+              <details>
+                <summary>Does omai require a cloud account?</summary>
+                <p>
+                  No omai account is needed. Local sync works without a remote.
+                  To sync across computers, bring an existing Git repository and
+                  its usual authentication.
+                </p>
+              </details>
+              <details>
+                <summary>Will it mix my providers’ configurations?</summary>
+                <p>
+                  Newly discovered instructions, skills, rules, and MCP
+                  declarations stay scoped to their provider. Explicitly shared
+                  source entries are also supported when you want them.
+                </p>
+              </details>
+              <details>
+                <summary>What happens while I’m offline?</summary>
+                <p>
+                  Local reconciliation continues and your changes remain on your
+                  computer. When automatic sync is running, omai retries the
+                  remote connection.
+                </p>
+              </details>
+              <details>
+                <summary>What if two computers change the same thing?</summary>
+                <p>
+                  omai keeps both versions and asks you to choose. It doesn’t
+                  silently pick the newest edit or force-push over another
+                  computer’s work.
+                </p>
+              </details>
+              <details>
+                <summary>What stays out of the synced source?</summary>
+                <p>
+                  Credentials, account databases, sessions, histories, caches,
+                  and project-level configuration stay local. Resource files
+                  must be text. Linked user skills are read as snapshots; omai
+                  does not overwrite their package-managed targets.
+                </p>
+              </details>
+              <details>
+                <summary>Can I pause, undo, or stop using it?</summary>
+                <p>
+                  Yes. Pause from the panel, review recovery history in
+                  Advanced, or confirm Undo last apply. Clearing settings stops
+                  sync and returns to setup while keeping your configuration
+                  files. Removing only the bar plugin does not stop its
+                  companion service; see the
+                  <a
+                    href="https://github.com/pablousx/omai/blob/main/docs/operations.md"
+                    >operations guide</a
+                  >.
+                </p>
+              </details>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-top">
+          <a class="brand" href="index.html"
+            ><svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <path
+                d="M16 2c1.8 8.6 5.4 12.2 14 14-8.6 1.8-12.2 5.4-14 14C14.2 21.4 10.6 17.8 2 16 10.6 14.2 14.2 10.6 16 2Z"
+                fill="currentColor"
+              /></svg
+            ><span>omai<span class="accent">.</span></span></a
+          >
+          <nav class="footer-links" aria-label="Footer navigation">
+            <a href="privacy.html">Privacy policy</a
+            ><a href="terms.html">Terms of service</a
+            ><a href="https://github.com/pablousx/omai/issues">Contact ↗</a
+            ><a href="https://github.com/pablousx/omai/blob/main/LICENSE"
+              >MIT license ↗</a
+            >
+          </nav>
+        </div>
+        <div class="footer-bottom">
+          <span
+            >Made by <a href="https://github.com/pablousx">pablousx</a> for the
+            <a href="https://omarchy.org/">Omarchy</a> desktop.</span
+          ><span
+            >Also for your desktop:
+            <a href="https://pablousx.github.io/omadocs/">omadocs ↗</a></span
+          >
+        </div>
+        <div class="footer-wordmark" aria-hidden="true">omai.</div>
+      </div>
+    </footer>
+  </body>
+</html>

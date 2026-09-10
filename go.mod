@@ -1,4 +1,4 @@
-module github.com/pablousx/relai
+module github.com/pablousx/omai
 
 go 1.26.0
 

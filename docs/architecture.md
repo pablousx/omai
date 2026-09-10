@@ -1,12 +1,12 @@
 # Architecture
 
-The Go binary owns synchronization. The QML widget reads JSON status and invokes the public CLI with argument arrays; it does not parse provider configurations or interpolate shell commands. Omarchy mounts `qml/Relai.qml` through the standard `bar-widget` manifest contract, with a `Panel`, `BarIconButton` and `KeyboardPanel` from its UI module.
+The Go binary owns synchronization. The QML widget reads JSON status and invokes the public CLI with argument arrays; it does not parse provider configurations or interpolate shell commands. Omarchy mounts `qml/Omai.qml` through the standard `bar-widget` manifest contract, with a `Panel`, `BarIconButton` and `KeyboardPanel` from its UI module.
 
 ## Reconciliation
 
 The canonical tree becomes semantic values: individual settings, MCP servers, hook events, plugin declarations, agents and resource files. Bindings map each value to a provider file and, for structured formats, its native field. The local baseline stores the last canonical tree and the expected value at each binding.
 
-Each pass reads and validates the source, then reads only documented global configuration surfaces. It discovers safe new values in those surfaces. An unchanged provider value is ignored, even if Relai previously reformatted its file. A provider-only change becomes a canonical proposal. Different concurrent proposals, or a different canonical edit since the baseline, become a conflict. Deletions are represented as explicit local tombstones so they do not bounce back as new additions.
+Each pass reads and validates the source, then reads only documented global configuration surfaces. It discovers safe new values in those surfaces. An unchanged provider value is ignored, even if omai previously reformatted its file. A provider-only change becomes a canonical proposal. Different concurrent proposals, or a different canonical edit since the baseline, become a conflict. Deletions are represented as explicit local tombstones so they do not bounce back as new additions.
 
 A complete plan is built before writing. The plan preserves fields outside a binding, records file modes and preimages, and checks every current file against its captured preimage. A durable journal precedes the first write. Each write uses a sibling temporary file and a rename through a pinned Linux directory descriptor. The baseline is part of the same transaction. A successful generation is therefore identifiable even after a process restart.
 
@@ -14,7 +14,7 @@ Unknown JSON/TOML values are retained semantically. Formatting and comments are 
 
 ## Git transport
 
-The source directory is not a Git checkout. Relai's bare transport repository lives in the data directory. A fresh temporary Git index receives only validated source blobs, written with `hash-object`, `update-index`, `write-tree` and `commit-tree`. There is no `git add -A`, working-tree checkout, user hook execution, package invocation or host-identity discovery.
+The source directory is not a Git checkout. omai's bare transport repository lives in the data directory. A fresh temporary Git index receives only validated source blobs, written with `hash-object`, `update-index`, `write-tree` and `commit-tree`. There is no `git add -A`, working-tree checkout, user hook execution, package invocation or host-identity discovery.
 
 Local reconciliation happens before network operations. Offline changes apply to local tools and remain queued as ordinary commits. Fetches use a temporary ref; explicit ancestry checks detect remote history rewrites before updating the tracking ref. Incoming trees must pass path, object-mode, size, content and schema validation before they enter the source.
 

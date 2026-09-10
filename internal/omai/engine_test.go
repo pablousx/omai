@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"context"
@@ -50,11 +50,11 @@ func syncLocal(t *testing.T, p Paths) Status {
 func changeManifest(t *testing.T, p Paths, f func(*Manifest)) {
 	t.Helper()
 	var m Manifest
-	if e := readJSON(filepath.Join(p.Source, "relai.json"), &m); e != nil {
+	if e := readJSON(filepath.Join(p.Source, "omai.json"), &m); e != nil {
 		t.Fatal(e)
 	}
 	f(&m)
-	put(t, filepath.Join(p.Source, "relai.json"), string(jsonBytes(m)))
+	put(t, filepath.Join(p.Source, "omai.json"), string(jsonBytes(m)))
 }
 func TestAdaptersRoundTripAndUnknownSettings(t *testing.T) {
 	p := fake(t)
@@ -98,7 +98,7 @@ func TestAdaptersRoundTripAndUnknownSettings(t *testing.T) {
 	if !strings.Contains(get(t, filepath.Join(p.Home, ".claude.json")), "LOCAL_TOKEN") {
 		t.Fatal("unknown credential lost")
 	}
-	if strings.Contains(get(t, filepath.Join(p.Source, "relai.json")), "LOCAL_TOKEN") {
+	if strings.Contains(get(t, filepath.Join(p.Source, "omai.json")), "LOCAL_TOKEN") {
 		t.Fatal("credential imported")
 	}
 	for i := 0; i < 3; i++ {
@@ -327,7 +327,7 @@ func TestTwoMachinesGitOfflineConflictRecovery(t *testing.T) {
 		t.Fatal(e)
 	}
 	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-		if line != "Relai <relai@localhost>" {
+		if line != "omai <omai@localhost>" {
 			t.Fatal("machine identity in Git")
 		}
 	}
@@ -515,12 +515,12 @@ func TestCredentialArgumentsAndRawLiteralsNeverImport(t *testing.T) {
 	if len(s.Warnings) == 0 {
 		t.Fatal("unsafe server was not reported")
 	}
-	if strings.Contains(get(t, filepath.Join(p.Source, "relai.json")), "private-value") {
+	if strings.Contains(get(t, filepath.Join(p.Source, "omai.json")), "private-value") {
 		t.Fatal("secret leaked")
 	}
 }
 func TestTransactionCrashChild(t *testing.T) {
-	home := os.Getenv("RELAI_CRASH_TEST_HOME")
+	home := os.Getenv("OMAI_CRASH_TEST_HOME")
 	if home == "" {
 		return
 	}
@@ -544,7 +544,7 @@ func TestKilledWriterRecoversWithoutOrphanSourceFiles(t *testing.T) {
 		put(t, filepath.Join(p.Home, "files", fmt.Sprintf("%04d.txt", i)), "original")
 	}
 	child := exec.Command(os.Args[0], "-test.run=^TestTransactionCrashChild$")
-	child.Env = append(os.Environ(), "RELAI_CRASH_TEST_HOME="+p.Home)
+	child.Env = append(os.Environ(), "OMAI_CRASH_TEST_HOME="+p.Home)
 	if e := child.Start(); e != nil {
 		t.Fatal(e)
 	}
@@ -594,7 +594,7 @@ func TestPersonalDeletionSurvivesNewMachineAttachment(t *testing.T) {
 	syncLocal(t, a)
 	syncLocal(t, a)
 	var m Manifest
-	if e := readJSON(filepath.Join(a.Source, "relai.json"), &m); e != nil {
+	if e := readJSON(filepath.Join(a.Source, "omai.json"), &m); e != nil {
 		t.Fatal(e)
 	}
 	if !m.Personal["editor"].Deleted {
@@ -635,13 +635,13 @@ func TestServiceInstallUsesPrivatePathsAndProtectsExistingCLI(t *testing.T) {
 	fakeBin := t.TempDir()
 	record := filepath.Join(t.TempDir(), "calls.txt")
 	stub := filepath.Join(fakeBin, "systemctl")
-	put(t, stub, "#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$RELAI_SYSTEMCTL_RECORD\"\n")
+	put(t, stub, "#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$OMAI_SYSTEMCTL_RECORD\"\n")
 	if e := os.Chmod(stub, 0700); e != nil {
 		t.Fatal(e)
 	}
 	t.Setenv("PATH", fakeBin+":"+os.Getenv("PATH"))
-	t.Setenv("RELAI_SYSTEMCTL_RECORD", record)
-	cliPath := filepath.Join(p.Home, ".local/bin/relai")
+	t.Setenv("OMAI_SYSTEMCTL_RECORD", record)
+	cliPath := filepath.Join(p.Home, ".local/bin/omai")
 	put(t, cliPath, "unrelated command")
 	if e := p.InstallService(); e == nil {
 		t.Fatal("overwrote an unrelated CLI")
@@ -655,14 +655,14 @@ func TestServiceInstallUsesPrivatePathsAndProtectsExistingCLI(t *testing.T) {
 	if e := p.InstallService(); e != nil {
 		t.Fatal(e)
 	}
-	unit := get(t, filepath.Join(filepath.Dir(p.Config), "systemd/user/relai.service"))
+	unit := get(t, filepath.Join(filepath.Dir(p.Config), "systemd/user/omai.service"))
 	if !strings.Contains(unit, "%%") || !strings.Contains(unit, "\\\"") || !strings.Contains(unit, "UMask=0077") {
 		t.Fatal("bad unit escaping or permissions")
 	}
-	if !strings.Contains(get(t, record), "--user enable --now relai.service") {
+	if !strings.Contains(get(t, record), "--user enable --now omai.service") {
 		t.Fatal("service was not enabled")
 	}
-	if !strings.Contains(get(t, cliPath), "# Managed by Relai") {
+	if !strings.Contains(get(t, cliPath), "# Managed by omai") {
 		t.Fatal("CLI marker absent")
 	}
 	ds, e := os.ReadDir(filepath.Join(p.State, "install-backups"))
@@ -709,7 +709,7 @@ func TestRemoteHistoryRewriteIsNeverAcceptedSilently(t *testing.T) {
 		t.Fatal(e)
 	}
 	if strings.TrimSpace(string(tip)) != first {
-		t.Fatal("Relai pushed over a rewritten branch")
+		t.Fatal("omai pushed over a rewritten branch")
 	}
 }
 func TestMultipleGitConflictDecisions(t *testing.T) {

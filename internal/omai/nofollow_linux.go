@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"crypto/rand"
@@ -58,7 +58,7 @@ func tempAt(parent *os.File, name string) (*os.File, string, error) {
 		if _, e := rand.Read(nonce[:]); e != nil {
 			return nil, "", e
 		}
-		name = ".relai-write-" + hex.EncodeToString(nonce[:])
+		name = ".omai-write-" + hex.EncodeToString(nonce[:])
 	}
 	if filepath.Base(name) != name {
 		return nil, "", fmt.Errorf("invalid temporary name")

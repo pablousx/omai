@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"encoding/json"
@@ -45,7 +45,7 @@ func safeRel(s string) error {
 	for _, part := range strings.Split(s, "/") {
 		low := strings.ToLower(part)
 		stem := strings.TrimSuffix(low, filepath.Ext(low))
-		if strings.HasPrefix(low, ".relai-") || part == ".." || part == "." || deniedParts[low] || deniedParts[stem] || strings.HasPrefix(low, ".env.") || strings.HasSuffix(low, ".db") || strings.HasSuffix(low, ".sqlite") || strings.HasSuffix(low, ".sqlite3") || strings.HasSuffix(low, ".log") || strings.HasSuffix(low, ".jsonl") || strings.Contains(low, "history") || strings.Contains(low, "credential") {
+		if strings.HasPrefix(low, ".omai-") || part == ".." || part == "." || deniedParts[low] || deniedParts[stem] || strings.HasPrefix(low, ".env.") || strings.HasSuffix(low, ".db") || strings.HasSuffix(low, ".sqlite") || strings.HasSuffix(low, ".sqlite3") || strings.HasSuffix(low, ".log") || strings.HasSuffix(low, ".jsonl") || strings.Contains(low, "history") || strings.Contains(low, "credential") {
 			return fmt.Errorf("excluded path %q", s)
 		}
 	}
@@ -56,7 +56,7 @@ func safePersonal(s string) error {
 	if e := safeRel(s); e != nil {
 		return e
 	}
-	for _, p := range []string{".codex", ".claude", ".claude.json", ".agents", ".config/opencode", ".config/relai", ".local/share/relai", ".local/state/relai", ".config/systemd", ".config/omarchy/plugins", ".local/bin", ".gitconfig", ".netrc", ".npmrc", ".pypirc", ".bash_history"} {
+	for _, p := range []string{".codex", ".claude", ".claude.json", ".agents", ".config/opencode", ".config/omai", ".local/share/omai", ".local/state/omai", ".config/systemd", ".config/omarchy/plugins", ".local/bin", ".gitconfig", ".netrc", ".npmrc", ".pypirc", ".bash_history"} {
 		if s == p || strings.HasPrefix(s, p+"/") {
 			return fmt.Errorf("personal path overlaps a protected location: %s", s)
 		}
@@ -286,7 +286,7 @@ func validateHook(p, event string, x any) error {
 		for _, h := range hs {
 			a, ok := h.(map[string]any)
 			if !ok || a["type"] != "command" {
-				return errors.New("Relai supports command hook handlers only")
+				return errors.New("omai supports command hook handlers only")
 			}
 			for key := range a {
 				if key != "type" && key != "command" && key != "timeout" && key != "async" {

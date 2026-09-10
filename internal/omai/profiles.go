@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"bytes"
@@ -79,7 +79,7 @@ func openBindingDocument(b Binding, protected []string) (*Document, error) {
 	}
 	// Dereference only discovered resource files, never configuration/state
 	// stores. The resolved target is opened without further link traversal and
-	// is read-only for Relai; source snapshots contain ordinary file contents.
+	// is read-only for omai; source snapshots contain ordinary file contents.
 	resolved, e := filepath.EvalSymlinks(b.Path)
 	if e != nil {
 		return nil, e
@@ -89,7 +89,7 @@ func openBindingDocument(b Binding, protected []string) (*Document, error) {
 	}
 	for _, root := range protected {
 		if resolved == root || strings.HasPrefix(resolved, root+"/") {
-			return nil, errors.New("linked resources cannot target Relai's own data")
+			return nil, errors.New("linked resources cannot target omai's own data")
 		}
 	}
 	d, e := openDocument(resolved, b.Format)
@@ -123,7 +123,7 @@ func discoverProviderResources(p Paths, provider, kind string, values Values, ol
 				if strings.HasPrefix(filepath.Base(rel), ".") || safeRel(rel) != nil {
 					return nil
 				}
-				if kind == "skills" && strings.HasPrefix(rel, "relai-command-") {
+				if kind == "skills" && strings.HasPrefix(rel, "omai-command-") {
 					return nil
 				}
 			}
@@ -147,7 +147,7 @@ func discoverProviderResources(p Paths, provider, kind string, values Values, ol
 				}
 				for _, protected := range []string{p.Config, p.Data, p.State} {
 					if resolved == protected || strings.HasPrefix(resolved, protected+"/") {
-						*warnings = append(*warnings, provider+": linked resource targets Relai data: "+kind+"/"+rel)
+						*warnings = append(*warnings, provider+": linked resource targets omai data: "+kind+"/"+rel)
 						return nil
 					}
 				}

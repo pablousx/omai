@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"bytes"
@@ -104,7 +104,7 @@ func (g gitStore) run(input []byte, extra []string, args ...string) ([]byte, err
 			env = append(env, v)
 		}
 	}
-	env = append(env, "GIT_TERMINAL_PROMPT=0", "GIT_AUTHOR_NAME=Relai", "GIT_AUTHOR_EMAIL=relai@localhost", "GIT_COMMITTER_NAME=Relai", "GIT_COMMITTER_EMAIL=relai@localhost", "GIT_SSH_COMMAND=ssh -oBatchMode=yes -oConnectTimeout=10")
+	env = append(env, "GIT_TERMINAL_PROMPT=0", "GIT_AUTHOR_NAME=omai", "GIT_AUTHOR_EMAIL=omai@localhost", "GIT_COMMITTER_NAME=omai", "GIT_COMMITTER_EMAIL=omai@localhost", "GIT_SSH_COMMAND=ssh -oBatchMode=yes -oConnectTimeout=10")
 	cmd.Env = append(env, extra...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error {
@@ -155,7 +155,7 @@ func (g gitStore) ref(name string) string {
 func (g gitStore) fetch(c Config) (string, error) {
 	branch := "refs/heads/" + c.Branch
 	tracking := "refs/remotes/origin/" + c.Branch
-	incoming := fmt.Sprintf("refs/relai/incoming/%d", time.Now().UnixNano())
+	incoming := fmt.Sprintf("refs/omai/incoming/%d", time.Now().UnixNano())
 	defer func() {
 		cleanup := g
 		cleanup.ctx = context.Background()
@@ -420,7 +420,7 @@ func (p Paths) gitSync(c Config, takes map[string]string, ctx context.Context) e
 	// Join an existing remote without manufacturing an empty first commit.
 	if local == "" && c.Remote != "" && len(t) == 1 {
 		var initial Manifest
-		if json.Unmarshal(t["relai.json"].Data, &initial) == nil && same(raw(initial), raw(defaultManifest())) {
+		if json.Unmarshal(t["omai.json"].Data, &initial) == nil && same(raw(initial), raw(defaultManifest())) {
 			refs, err := g.run(nil, nil, "ls-remote", "--heads", "--", c.Remote, branch)
 			if err == nil && len(bytes.TrimSpace(refs)) > 0 {
 				remote, e := g.fetch(c)

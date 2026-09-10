@@ -14,7 +14,7 @@ Column {
     var value = remoteInput.text.trim()
     if (!value) return ""
     if (/\s/.test(value)) return "Use a repository URL without spaces."
-    if (/^https?:\/\/[^/]*@/.test(value)) return "Remove credentials from the URL. Relai uses your saved Git sign-in."
+    if (/^https?:\/\/[^/]*@/.test(value)) return "Remove credentials from the URL. omai uses your saved Git sign-in."
     if (!/^(https?:\/\/|ssh:\/\/|git:\/\/|file:\/\/|\/|[^/:\s]+@[^/:\s]+:)/.test(value)) return "Use an HTTPS or SSH Git URL, or leave this blank for local sync."
     return ""
   }
@@ -64,7 +64,7 @@ Column {
   Label { text: "Git remote · optional" }
   Field {
     id: remoteInput
-    objectName: "relai-setup-remote"
+    objectName: "omai-setup-remote"
     Accessible.name: "Git remote, optional"
     placeholderText: "git@github.com:you/ai-config.git"
     onAccepted: machineInput.forceActiveFocus()
@@ -72,11 +72,11 @@ Column {
   Label { visible: form.attempted && form.remoteError !== ""; text: form.remoteError; color: Color.urgent }
   Label { text: "Use an existing Git repository to sync across computers. Leave this blank to keep changes local."; font.pixelSize: Style.space(11) }
   Label { text: "Computer name · optional" }
-  Field { id: machineInput; objectName: "relai-setup-machine"; Accessible.name: "Computer name, optional"; placeholderText: "This computer"; onAccepted: form.submit() }
+  Field { id: machineInput; objectName: "omai-setup-machine"; Accessible.name: "Computer name, optional"; placeholderText: "This computer"; onAccepted: form.submit() }
   Label { text: "Import existing configuration" }
   Controls.ComboBox {
     id: seedInput
-    objectName: "relai-setup-seed"
+    objectName: "omai-setup-seed"
     Accessible.name: "Import existing configuration"
     enabled: !form.working
     width: form.width
@@ -137,12 +137,12 @@ Column {
   Row {
     spacing: Style.space(8)
     Button {
-      objectName: "relai-setup-submit"
+      objectName: "omai-setup-submit"
       text: form.working ? "Setting up…" : remoteInput.text.trim() ? "Start syncing" : "Start local sync"
       primary: true
       enabled: !form.working
       onClicked: form.submit()
     }
-    Button { objectName: "relai-setup-cancel"; text: form.working ? "Close" : "Cancel"; onClicked: form.cancelled() }
+    Button { objectName: "omai-setup-cancel"; text: form.working ? "Close" : "Cancel"; onClicked: form.cancelled() }
   }
 }

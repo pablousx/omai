@@ -2,15 +2,16 @@
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 python3 scripts/check-release.py
+python3 scripts/check-site.py
 [[ -z $(gofmt -l cmd internal) ]] || { printf '%s\n' 'Go files need formatting.' >&2; exit 1; }
 go test -race ./...
 go vet ./...
 bash -n scripts/setup scripts/plugin-setup scripts/terminal scripts/check
-sh -n scripts/relai
-if command -v shellcheck >/dev/null; then shellcheck scripts/setup scripts/plugin-setup scripts/terminal scripts/check scripts/relai; fi
-if command -v actionlint >/dev/null; then actionlint -config-file .github/actionlint.yaml .github/workflows/ci.yml .github/workflows/release.yml; fi
-go build -buildvcs=false -mod=readonly -trimpath -o build/relai ./cmd/relai
-python3 scripts/test-e2e.py build/relai
-python3 scripts/test-install.py build/relai
-python3 scripts/check-release.py --binary build/relai
+sh -n scripts/omai
+if command -v shellcheck >/dev/null; then shellcheck scripts/setup scripts/plugin-setup scripts/terminal scripts/check scripts/omai; fi
+if command -v actionlint >/dev/null; then actionlint -config-file .github/actionlint.yaml .github/workflows/*.yml; fi
+go build -buildvcs=false -mod=readonly -trimpath -o build/omai ./cmd/omai
+python3 scripts/test-e2e.py build/omai
+python3 scripts/test-install.py build/omai
+python3 scripts/check-release.py --binary build/omai
 if command -v omarchy >/dev/null; then omarchy plugin validate .; fi

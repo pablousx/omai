@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"bytes"
@@ -124,7 +124,7 @@ func syncDir(path string) error {
 }
 func lock(path string) (func(), error) {
 	if !filepath.IsAbs(path) {
-		return nil, errors.New("Relai requires absolute HOME and XDG paths")
+		return nil, errors.New("omai requires absolute HOME and XDG paths")
 	}
 	if e := noSymlink(path); e != nil {
 		return nil, e
@@ -144,7 +144,7 @@ func lock(path string) (func(), error) {
 	f := os.NewFile(uintptr(fd), path)
 	if e = syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); e != nil {
 		f.Close()
-		return nil, errors.New("Relai is busy; another operation holds the lock")
+		return nil, errors.New("omai is busy; another operation holds the lock")
 	}
 	return func() { _ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN); _ = f.Close() }, nil
 }
@@ -209,7 +209,7 @@ func (p Paths) transaction(changes []Change) (string, error) {
 	id := fmt.Sprintf("%d", time.Now().UnixNano())
 	j := Journal{ID: id, Phase: "pending", Changes: changes}
 	for i, c := range changes {
-		j.Temps = append(j.Temps, filepath.Join(filepath.Dir(c.Path), fmt.Sprintf(".relai-%s-%d.tmp", id, i)))
+		j.Temps = append(j.Temps, filepath.Join(filepath.Dir(c.Path), fmt.Sprintf(".omai-%s-%d.tmp", id, i)))
 	}
 	dir := filepath.Join(p.State, "transactions", id)
 	if e := os.MkdirAll(dir, 0700); e != nil {
@@ -302,7 +302,7 @@ func (p Paths) recover() error {
 			temp := ""
 			if len(j.Temps) == len(j.Changes) {
 				temp = j.Temps[i]
-				want := filepath.Join(filepath.Dir(c.Path), fmt.Sprintf(".relai-%s-%d.tmp", j.ID, i))
+				want := filepath.Join(filepath.Dir(c.Path), fmt.Sprintf(".omai-%s-%d.tmp", j.ID, i))
 				if temp != want {
 					return errors.New("invalid recovery temporary path")
 				}
@@ -404,7 +404,7 @@ func (p Paths) Rollback(id string) error {
 		}
 		changes = append(restore, changes...)
 	}
-	if e = atomicJSON(filepath.Join(p.State, "paused.json"), map[string]string{"reason": "rollback; inspect files, then relai daemon resume"}); e != nil {
+	if e = atomicJSON(filepath.Join(p.State, "paused.json"), map[string]string{"reason": "rollback; inspect files, then omai daemon resume"}); e != nil {
 		return e
 	}
 	_, e = p.transaction(changes)

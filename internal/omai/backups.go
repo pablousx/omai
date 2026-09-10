@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"errors"

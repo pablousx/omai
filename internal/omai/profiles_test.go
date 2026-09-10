@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"encoding/json"
@@ -59,7 +59,7 @@ LANG = "en_US.UTF-8"
 	if strings.Contains(canonical, "LOCAL_PRIVATE_VALUE") || !strings.Contains(canonical, "startup_timeout_sec") || !strings.Contains(canonical, `"enabled": false`) {
 		t.Fatal("native MCP options lost or credentials imported", canonical)
 	}
-	manifest := get(t, filepath.Join(p.Source, "relai.json"))
+	manifest := get(t, filepath.Join(p.Source, "omai.json"))
 	for _, absent := range []string{"LOCAL_TOKEN", "OTHER_PRIVATE_VALUE", "model_availability_nux", "/private/project"} {
 		if strings.Contains(manifest, absent) {
 			t.Fatal("local-only value imported", absent)
@@ -131,12 +131,12 @@ func TestLinkedAndLegacySkillsAreSnapshottedWithoutChangingTargets(t *testing.T)
 func TestLinkedResourcesCannotTraverseExcludedStoresOrCycles(t *testing.T) {
 	p := fake(t)
 	root := filepath.Join(p.Home, ".agents/skills")
-	put(t, filepath.Join(p.Data, "SKILL.md"), "Relai private sentinel\n")
+	put(t, filepath.Join(p.Data, "SKILL.md"), "omai private sentinel\n")
 	put(t, filepath.Join(p.Home, ".ssh", "SKILL.md"), "private sentinel\n")
 	if e := os.MkdirAll(root, 0700); e != nil {
 		t.Fatal(e)
 	}
-	for name, target := range map[string]string{"bad": filepath.Join(p.Home, ".ssh"), "loop": root, "relai": p.Data} {
+	for name, target := range map[string]string{"bad": filepath.Join(p.Home, ".ssh"), "loop": root, "omai": p.Data} {
 		if e := os.Symlink(target, filepath.Join(root, name)); e != nil {
 			t.Fatal(e)
 		}

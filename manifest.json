@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "pablousx.relai",
-  "name": "Relai",
+  "id": "pablousx.omai",
+  "name": "omai",
   "version": "1.0.0",
   "author": "pablousx",
   "license": "MIT",
-  "description": "Your AI setup, relayed everywhere. Global configuration sync for Codex, Claude Code and OpenCode.",
+  "description": "Your AI setup, in sync. Global configuration sync for Codex, Claude Code and OpenCode.",
   "kinds": [
     "bar-widget"
   ],
   "entryPoints": {
-    "barWidget": "qml/Relai.qml"
+    "barWidget": "qml/Omai.qml"
   },
   "barWidget": {
-    "displayName": "Relai",
+    "displayName": "omai",
     "description": "AI configuration sync health, providers, machines, conflicts and recovery.",
     "category": "System",
     "allowMultiple": false,

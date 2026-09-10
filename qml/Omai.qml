@@ -9,8 +9,8 @@ import qs.Ui
 
 Panel {
   id: root
-  moduleName: "pablousx.relai"
-  ipcTarget: "pablousx.relai"
+  moduleName: "pablousx.omai"
+  ipcTarget: "pablousx.omai"
   manageIpc: false
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
@@ -56,10 +56,11 @@ Panel {
   onOpenedChanged: {
     if (opened) {
       keyboardNavigation = false
+      now = Date.now()
       scroll.contentY = 0
     }
   }
-  readonly property string launcher: decodeURIComponent(Qt.resolvedUrl("../scripts/relai").toString().replace(/^file:\/\//, ""))
+  readonly property string launcher: decodeURIComponent(Qt.resolvedUrl("../scripts/omai").toString().replace(/^file:\/\//, ""))
   readonly property string setupLauncher: decodeURIComponent(Qt.resolvedUrl("../scripts/plugin-setup").toString().replace(/^file:\/\//, ""))
   readonly property color foreground: bar ? bar.foreground : Color.foreground
   readonly property color secondary: Util.alpha(foreground, 0.62)
@@ -69,25 +70,25 @@ Panel {
     : !report.configured ? "Bring your AI setup along"
     : report.paused ? "Sync is paused"
     : report.health === "conflict" ? "Choose which changes to keep"
-    : report.health === "offline" ? "Waiting for a connection"
+    : report.health === "offline" ? (report.daemon ? "Waiting for a connection" : "Automatic sync is off")
     : report.health === "error" ? "Sync needs attention"
     : !report.daemon ? "Automatic sync is off"
     : report.pending ? "Changes ready to sync"
     : report.health === "local" ? "Your local setup is in sync" : "Your setup is up to date"
   readonly property string healthDescription: statusError ? statusError : !statusLoaded ? "This usually takes a moment."
-    : updateNeeded ? "Install Relai " + pluginVersion + " to continue syncing with this plugin."
+    : updateNeeded ? "Install omai " + pluginVersion + " to continue syncing with this plugin."
     : !report.configured ? "Keep your instructions, settings, skills, and MCPs ready on every computer."
     : report.paused ? "Your files are kept as they are. Resume when you want changes to sync again."
     : report.health === "conflict" ? "Both versions are saved. Review them below before choosing one."
-    : report.health === "offline" ? "Local changes are saved. Relai will retry automatically when connected."
+    : report.health === "offline" ? (report.daemon ? "Local changes are saved. omai will retry automatically when connected." : "Your changes are saved locally. Start automatic sync to retry the connection.")
     : report.health === "error" ? "Your saved files are available. Check what needs attention before retrying."
     : !report.daemon ? "Start automatic sync to watch for changes in the background."
     : report.pending ? "Your changes are saved locally and waiting to reach the remote."
     : !report.remote_configured ? "Changes stay on this computer. No Git remote is connected."
     : "Changes sync automatically in the background. You can keep working."
   readonly property var primaryAction: !statusLoaded || statusError ? {label: "Check again", maintenance: true, args: ["refresh"]}
-    : updateNeeded ? {label: "Update Relai", maintenance: true, args: ["plugin-update"]}
-    : !report.configured ? {label: "Set up Relai", maintenance: true, args: ["plugin-setup"]}
+    : updateNeeded ? {label: "Update omai", maintenance: true, args: ["plugin-update"]}
+    : !report.configured ? {label: "Set up omai", maintenance: true, args: ["plugin-setup"]}
     : !report.daemon ? {label: "Start automatic sync", args: ["daemon", "start"]}
     : report.paused ? {label: "Resume syncing", args: ["daemon", "resume"]}
     : report.health === "error" ? {label: "Check sync issues", maintenance: true, args: ["doctor"]}
@@ -105,7 +106,7 @@ Panel {
     {label: "Check sync issues", maintenance: true, args: ["doctor"]},
     {label: "Recovery history", maintenance: true, args: ["backups", "list"]},
     {label: "Undo last apply…", args: ["rollback"], destructive: true, disabled: !report.backup_count},
-    {label: "Update Relai", maintenance: true, args: ["plugin-update"]},
+    {label: "Update omai", maintenance: true, args: ["plugin-update"]},
     {label: report.daemon ? "Stop automatic sync" : "Start automatic sync", args: ["daemon", report.daemon ? "stop" : "start"]},
     {label: "Clear settings (keeps configs)…", maintenance: true, args: ["confirm-clear"], destructive: true}
   ].filter(x => actionKey(x) !== actionKey(primaryAction) && (report.configured || ["doctor", "plugin-update"].indexOf(x.args[0]) >= 0))
@@ -166,9 +167,31 @@ Panel {
     }
     Qt.callLater(ensureSelectedVisible)
   }
+  function moveDirection(dx, dy) {
+    var current = actionItems[actionKey(actions[selectedAction])]
+    if (!current) { moveSelection(dy || dx); return }
+    var origin = current.mapToItem(content, current.width / 2, current.height / 2)
+    var best = -1, bestScore = Infinity
+    for (var i = 0; i < actions.length; i++) {
+      if (i === selectedAction || !enabledAction(actions[i])) continue
+      var item = actionItems[actionKey(actions[i])]
+      if (!item || !item.visible) continue
+      var point = item.mapToItem(content, item.width / 2, item.height / 2)
+      var along = dx ? (point.x - origin.x) * dx : (point.y - origin.y) * dy
+      var across = dx ? Math.abs(point.y - origin.y) : Math.abs(point.x - origin.x)
+      var score = along + across * 2
+      if (along > 1 && score < bestScore) { best = i; bestScore = score }
+    }
+    if (best < 0) { moveSelection(dy || dx); return }
+    keyboardNavigation = true
+    keyCatcher.forceActiveFocus()
+    selectedAction = best
+    Qt.callLater(ensureSelectedVisible)
+  }
   function enabledAction(action) {
     if (!action || action.disabled) return false
     var name = action.args[0]
+    if (pendingConfirmation && ["cancel-confirm", "accept-confirm", "refresh"].indexOf(name) < 0) return false
     if (["close-readout", "cancel-confirm", "details", "advanced"].indexOf(name) >= 0) return true
     if (name === "reload-readout") return !readoutPending
     if (name === "refresh") return !statusPending
@@ -215,7 +238,7 @@ Panel {
       report = next
       statusLoaded = true
       statusError = ""
-    } catch (e) { statusError = "Could not read Relai status. Try checking again, or open Advanced → Check sync issues." }
+    } catch (e) { statusError = "Could not read omai status. Try checking again, or open Advanced → Check sync issues." }
   }
   function finishAction(code, stdout, stderr) {
     actionInFlight = false
@@ -238,7 +261,7 @@ Panel {
         advancedOpen = false; setupFailed = false
         setupForm.clearDraft()
         setupOpen = true
-        actionMessage = "Relai settings cleared. Your configuration files are kept."
+        actionMessage = "omai settings cleared. Your configuration files are kept."
         Qt.callLater(function() { setupForm.focusFirst() })
       }
     }
@@ -256,8 +279,8 @@ Panel {
     if (!enabledAction(action)) return
     var name = action.args[0]
     if (name === "refresh") { refresh(); return }
-    if (name === "details") { detailsOpen = !detailsOpen; Qt.callLater(function() { root.revealItem(syncDetails) }); return }
-    if (name === "advanced") { advancedOpen = !advancedOpen; Qt.callLater(function() { root.revealItem(advancedSection) }); return }
+    if (name === "details") { detailsOpen = !detailsOpen; if (opened) Qt.callLater(function() { root.revealItem(syncDetails) }); return }
+    if (name === "advanced") { advancedOpen = !advancedOpen; if (opened) Qt.callLater(function() { root.revealItem(advancedSection) }); return }
     if (name === "cancel-confirm") { cancelConfirmation(); return }
     if (name === "close-readout") { closeReadout(); return }
     if (name === "reload-readout") { loadReadout(); return }
@@ -280,7 +303,7 @@ Panel {
     if (name === "confirm-clear") {
       if (updateNeeded || !report.configured) return
       requestConfirmation({args: ["settings", "clear", "--yes"], confirmLabel: "Clear settings", title: "Start setup again?",
-        description: "This stops automatic sync and clears Relai’s connection settings and preferences. Your synced source, provider files, Git history, and recovery history are kept."})
+        description: "This stops automatic sync and clears omai’s connection settings and preferences. Your synced source, provider files, Git history, and recovery history are kept."})
       return
     }
     if (name === "rollback") {
@@ -312,7 +335,7 @@ Panel {
     feedbackDeadline.stop()
     actionStartDeadline.restart()
     actionMessage = action.args[0] === "sync" ? "Syncing your changes…" : action.args[0] === "rollback" ? "Restoring the previous configuration…"
-      : action.args[0] === "resolve" ? "Applying your choice…" : clearingSettings ? "Clearing Relai settings…" : "Updating automatic sync…"
+      : action.args[0] === "resolve" ? "Applying your choice…" : clearingSettings ? "Clearing omai settings…" : "Updating automatic sync…"
     actionError = ""
     actionProc.command = [root.launcher].concat(action.args)
     actionProc.running = true
@@ -355,12 +378,12 @@ Panel {
       var entries = []
       if (readoutKind === "doctor") {
         if (!data || !Array.isArray(data.issues) || typeof data.ok !== "boolean") throw new Error("Invalid check result")
-        readoutSummary = data.ok ? "All checks passed. Relai is ready to sync." : "Here’s what needs attention. Your saved configuration is still available."
+        readoutSummary = data.ok ? "All checks passed. omai is ready to sync." : "Here’s what needs attention. Your saved configuration is still available."
         entries = data.issues.map(x => ({title: "Check this", body: String(x)}))
       } else if (readoutKind === "backups") {
         if (code !== 0 || !data || !Array.isArray(data.items)) throw new Error("Invalid history result")
         readoutSummary = data.items.length ? countLabel(data.items.length, "recovery point") + " · " + formatBytes(data.bytes) + ". These undo local changes; your synced configuration lives in Git." + (data.items.length > 10 ? " Showing the latest 10." : "")
-          : "No recovery points yet. Relai creates one before applying a configuration change."
+          : "No recovery points yet. omai creates one before applying a configuration change."
         entries = data.items.slice(-10).reverse().map(x => ({title: /^\d{19}$/.test(x.id) ? prettyTime(new Date(Number(x.id) / 1000000).toISOString()) : "Recovery point " + x.id, body: formatBytes(x.bytes) + " · " + (x.protected ? "Kept for recovery" : "Eligible for automatic cleanup") + (x.reason === "Latest rollback generation" ? "\nMost recent applied change" : x.phase !== "complete" && x.phase !== "recovered" ? "\nNeeds a recovery check" : "")}))
       } else {
         if (code !== 0 || !data || !data.choices || typeof data.choices !== "object") throw new Error("Invalid saved versions")
@@ -368,6 +391,7 @@ Panel {
         for (var key of Object.keys(data.choices)) {
           var value = data.choices[key]
           var body = value === null ? "(This version deletes the item.)" : value && value.data !== undefined ? decodeBlob(value.data) : JSON.stringify(value, null, 2)
+          if (body === "") body = "(Empty file)"
           if (body.length > 12000) previewTruncated = true
           entries.push({title: choiceLabel(key), body: body.length > 12000 ? body.slice(0, 12000) + "\n… Preview shortened. Use Full comparison to read the rest before choosing." : body})
         }
@@ -380,7 +404,7 @@ Panel {
       var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
       var encoded = String(value).replace(/=+$/, "")
       var buffer = 0, bits = 0, escaped = ""
-      for (var i = 0; i < encoded.length; i++) {
+      for (var i = 0; i < Math.min(encoded.length, 65536); i++) {
         var digit = alphabet.indexOf(encoded[i])
         if (digit < 0) throw new Error("Invalid content encoding")
         buffer = (buffer << 6) | digit
@@ -390,7 +414,13 @@ Panel {
           escaped += "%" + ("0" + ((buffer >> bits) & 255).toString(16)).slice(-2)
         }
       }
-      return decodeURIComponent(escaped)
+      // A bounded preview can end inside a UTF-8 sequence. Trim at most
+      // three trailing bytes rather than decoding megabytes on the UI thread.
+      for (var trim = 0; trim <= 3; trim++) {
+        try { return decodeURIComponent(escaped.slice(0, escaped.length - trim * 3)) }
+        catch (ignored) {}
+      }
+      return "Couldn’t preview this content."
     } catch (e) { return "Couldn’t preview this content." }
   }
   function beginSetup(mode, args, source) {
@@ -399,7 +429,7 @@ Panel {
     setupArguments = args
     setupFailed = false
     actionError = ""
-    actionMessage = mode === "setup" ? "Preparing Relai and starting sync…" : "Updating Relai…"
+    actionMessage = mode === "setup" ? "Preparing omai and starting sync…" : "Updating omai…"
     actionInFlight = true
     feedbackDeadline.stop()
     actionStartDeadline.restart()
@@ -456,7 +486,7 @@ Panel {
   Timer {
     id: actionStartDeadline
     interval: 5000
-    onTriggered: if (root.actionInFlight && !actionProc.running && !setupProc.running && !terminalProc.running) root.finishAction(1, "", "Could not launch the action. Check the Relai installation.")
+    onTriggered: if (root.actionInFlight && !actionProc.running && !setupProc.running && !terminalProc.running) root.finishAction(1, "", "Could not launch the action. Check the omai installation.")
   }
   Timer {
     id: statusDeadline
@@ -502,7 +532,7 @@ Panel {
     onStarted: actionStartDeadline.stop()
     stdout: SplitParser {
       onRead: function(line) {
-        if (/^(Preparing Relai|Downloading Relai|Building Relai|Installed Relai|Saving configuration)/.test(line)) root.actionMessage = line
+        if (/^(Preparing omai|Downloading omai|Building omai|Installed omai|Saving configuration)/.test(line)) root.actionMessage = line
       }
     }
     stderr: StdioCollector { id: setupErrors }
@@ -511,7 +541,7 @@ Panel {
       actionStartDeadline.stop()
       root.setupFailed = code !== 0
       root.actionError = code === 0 ? "" : (setupErrors.text.trim().slice(-3000) || "Setup could not finish. Try again.")
-      root.actionMessage = code === 0 ? (root.setupMode === "setup" ? "Setup complete. Sync is running." : "Relai is up to date.") : ""
+      root.actionMessage = code === 0 ? (root.setupMode === "setup" ? "Setup complete. Sync is running." : "omai is up to date.") : ""
       if (code === 0) { root.setupOpen = false; feedbackDeadline.restart(); keyCatcher.forceActiveFocus() }
       else Qt.callLater(function() { root.revealItem(actionFeedback) })
       root.refresh()
@@ -530,7 +560,7 @@ Panel {
     }
   }
 
-  component RelaiButton: ActionButton {
+  component OmaiButton: ActionButton {
     foreground: root.foreground
     property var entry: null
     property int actionIndex: -1
@@ -555,7 +585,7 @@ Panel {
     id: button
     anchors.fill: parent
     bar: root.bar
-    tooltipText: "Relai · " + root.healthLabel
+    tooltipText: "omai · " + root.healthLabel
     iconComponent: Component {
       Item {
         Text {
@@ -591,11 +621,11 @@ Panel {
 
     PanelKeyCatcher {
       id: keyCatcher
-      objectName: "relai-keyboard"
+      objectName: "omai-keyboard"
       blocked: root.setupOpen
       anchors.fill: parent
       onCloseRequested: root.escapeView()
-      onMoveRequested: function(dx, dy) { root.moveSelection(dy || dx) }
+      onMoveRequested: function(dx, dy) { root.moveDirection(dx, dy) }
       onActivateRequested: root.runAction(root.actions[root.selectedAction])
       onTabRequested: function(direction) { root.moveSelection(direction) }
       onTextKey: function(key) {
@@ -605,7 +635,7 @@ Panel {
 
       Flickable {
         id: scroll
-        objectName: "relai-scroll"
+        objectName: "omai-scroll"
         anchors.fill: parent
         contentWidth: width
         contentHeight: content.implicitHeight
@@ -615,13 +645,13 @@ Panel {
 
         Column {
           id: content
-          objectName: "relai-panel-content"
+          objectName: "omai-panel-content"
           width: scroll.width
           spacing: Style.space(14)
 
           RowLayout {
             width: parent.width
-            Label { text: "✦  Relai"; color: root.foreground; font.pixelSize: Style.space(21); Layout.fillWidth: true }
+            Label { text: "✦  omai"; color: root.foreground; font.pixelSize: Style.space(21); Layout.fillWidth: true }
             Label { text: "AI CONFIG SYNC"; font.pixelSize: Style.space(9); font.letterSpacing: 1 }
           }
 
@@ -648,7 +678,7 @@ Panel {
 
           Rectangle {
             id: actionFeedback
-            objectName: "relai-feedback"
+            objectName: "omai-feedback"
             width: parent.width
             visible: root.actionMessage !== "" || root.actionError !== ""
             implicitHeight: feedbackRow.implicitHeight + Style.space(18)
@@ -683,6 +713,24 @@ Panel {
             Label { width: parent.width; text: root.pendingConfirmation ? root.pendingConfirmation.description : "" }
           }
 
+          RowLayout {
+            width: parent.width
+            visible: root.viewActions.length > 0
+            Repeater {
+              model: root.viewActions
+              delegate: OmaiButton {
+                required property var modelData
+                required property int index
+                objectName: index === 1 && root.clearConfirm ? "omai-clear-confirm" : "omai-view-" + index
+                entry: modelData
+                actionIndex: index
+                primary: index === 0
+                Layout.fillWidth: true
+              }
+            }
+          }
+
+
           Column {
             width: parent.width
             visible: root.readoutOpen
@@ -715,22 +763,6 @@ Panel {
             }
           }
 
-          RowLayout {
-            width: parent.width
-            visible: root.viewActions.length > 0
-            Repeater {
-              model: root.viewActions
-              delegate: RelaiButton {
-                required property var modelData
-                required property int index
-                objectName: index === 1 && root.clearConfirm ? "relai-clear-confirm" : "relai-view-" + index
-                entry: modelData
-                actionIndex: index
-                primary: index === 0
-                Layout.fillWidth: true
-              }
-            }
-          }
 
           Column {
             width: parent.width
@@ -747,17 +779,17 @@ Panel {
                 spacing: Style.space(7)
                 Label { width: parent.width; text: modelData.key; wrapMode: Text.WrapAnywhere; color: root.foreground }
                 Label { width: parent.width; text: modelData.reason; font.pixelSize: Style.space(11) }
-                RelaiButton { entry: root.actions[conflictItem.actionOffset]; actionIndex: conflictItem.actionOffset }
+                OmaiButton { entry: ({label: "Review versions", maintenance: true, args: ["conflicts", "--show", conflictItem.modelData.key]}); actionIndex: conflictItem.actionOffset }
                 Flow {
                   width: parent.width
                   spacing: Style.space(6)
                   Repeater {
                     model: conflictItem.modelData.choices
-                    delegate: RelaiButton {
+                    delegate: OmaiButton {
                       required property string modelData
                       required property int index
                       actionIndex: conflictItem.actionOffset + 1 + index
-                      entry: root.actions[actionIndex]
+                      entry: ({label: root.choiceLabel(modelData), args: ["resolve", conflictItem.modelData.key, "--take", modelData]})
                     }
                   }
                 }
@@ -773,12 +805,12 @@ Panel {
             rowSpacing: Style.space(8)
             Repeater {
               model: root.baseActions
-              delegate: RelaiButton {
+              delegate: OmaiButton {
                 required property var modelData
                 required property int index
                 actionIndex: root.conflictActionCount + index
                 entry: modelData
-                objectName: "relai-action-" + modelData.args[0]
+                objectName: "omai-action-" + modelData.args[0]
                 text: index === 0 && root.busy ? "Working…" : modelData.label
                 Layout.fillWidth: true
               }
@@ -850,12 +882,12 @@ Panel {
               rowSpacing: Style.space(8)
               Repeater {
                 model: root.advancedActions
-                delegate: RelaiButton {
+                delegate: OmaiButton {
                   required property var modelData
                   required property int index
                   actionIndex: root.conflictActionCount + root.baseActions.length + index
                   entry: modelData
-                  objectName: "relai-" + modelData.args[0]
+                  objectName: "omai-" + modelData.args[0]
                   Layout.fillWidth: true
                 }
               }
@@ -868,7 +900,7 @@ Panel {
             spacing: Style.space(8)
             Label { width: parent.width; text: "Your choices are saved. Try again, or build this local copy if a release is unavailable."; font.pixelSize: Style.space(11) }
             ActionButton {
-              objectName: "relai-setup-source"
+              objectName: "omai-setup-source"
               visible: root.setupOpen
               onActiveFocusChanged: if (activeFocus) root.revealItem(this)
               text: "Build local copy and retry"

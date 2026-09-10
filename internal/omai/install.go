@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"context"
@@ -21,10 +21,10 @@ type installation struct {
 func serviceQuery(query string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	return exec.CommandContext(ctx, "systemctl", "--user", query, "--quiet", "relai.service").Run() == nil
+	return exec.CommandContext(ctx, "systemctl", "--user", query, "--quiet", "omai.service").Run() == nil
 }
 func (p Paths) installTargets() (string, string, string) {
-	return filepath.Join(p.Data, "bin/relai"), filepath.Join(filepath.Dir(p.Config), "systemd/user/relai.service"), filepath.Join(p.Home, ".local/bin/relai")
+	return filepath.Join(p.Data, "bin/omai"), filepath.Join(filepath.Dir(p.Config), "systemd/user/omai.service"), filepath.Join(p.Home, ".local/bin/omai")
 }
 func (p Paths) restoreInstallation(j installation) error {
 	// Check every preimage before restoring any file, including retries after a crash.
@@ -44,11 +44,11 @@ func (p Paths) restoreInstallation(j installation) error {
 	}
 	if j.Service {
 		if _, e := os.Lstat(unit); e == nil {
-			if e := systemctl("stop", "relai.service"); e != nil {
+			if e := systemctl("stop", "omai.service"); e != nil {
 				return e
 			}
 			if !j.Enabled {
-				if e := systemctl("disable", "relai.service"); e != nil {
+				if e := systemctl("disable", "omai.service"); e != nil {
 					return e
 				}
 			}
@@ -67,12 +67,12 @@ func (p Paths) restoreInstallation(j installation) error {
 			return e
 		}
 		if j.Enabled {
-			if e := systemctl("enable", "relai.service"); e != nil {
+			if e := systemctl("enable", "omai.service"); e != nil {
 				return e
 			}
 		}
 		if j.Active {
-			if e := systemctl("start", "relai.service"); e != nil {
+			if e := systemctl("start", "omai.service"); e != nil {
 				return e
 			}
 		}
@@ -114,7 +114,7 @@ func (p Paths) Install(activate, binaryOnly bool) (err error) {
 	_, configErr := p.LoadConfig()
 	if !binaryOnly && configErr == nil {
 		requested[unit] = FileImage{true, []byte(p.ServiceUnit()), 0600}
-		requested[cli] = FileImage{true, []byte("#!/bin/sh\n# Managed by Relai\nexec " + shellQuote(dest) + " \"$@\"\n"), 0700}
+		requested[cli] = FileImage{true, []byte("#!/bin/sh\n# Managed by omai\nexec " + shellQuote(dest) + " \"$@\"\n"), 0700}
 	} else if !binaryOnly && !os.IsNotExist(configErr) {
 		return configErr
 	}
@@ -128,7 +128,7 @@ func (p Paths) Install(activate, binaryOnly bool) (err error) {
 		if e != nil {
 			return e
 		}
-		if before.Exists && path != dest && !strings.HasPrefix(string(before.Data), "# Managed by Relai\n") && !strings.HasPrefix(string(before.Data), "#!/bin/sh\n# Managed by Relai\n") {
+		if before.Exists && path != dest && !strings.HasPrefix(string(before.Data), "# Managed by omai\n") && !strings.HasPrefix(string(before.Data), "#!/bin/sh\n# Managed by omai\n") {
 			return fmt.Errorf("refusing unrelated installation file: %s", path)
 		}
 		if path == dest && before.Exists && !equalImage(before, requested[path]) {
@@ -157,7 +157,7 @@ func (p Paths) Install(activate, binaryOnly bool) (err error) {
 		}
 	}()
 	if j.Active {
-		if e = systemctl("stop", "relai.service"); e != nil {
+		if e = systemctl("stop", "omai.service"); e != nil {
 			return e
 		}
 	}
@@ -184,11 +184,11 @@ func (p Paths) Install(activate, binaryOnly bool) (err error) {
 			return e
 		}
 		if activate {
-			if e = systemctl("enable", "--now", "relai.service"); e != nil {
+			if e = systemctl("enable", "--now", "omai.service"); e != nil {
 				return e
 			}
 		} else if j.Active {
-			if e = systemctl("start", "relai.service"); e != nil {
+			if e = systemctl("start", "omai.service"); e != nil {
 				return e
 			}
 		}
@@ -212,7 +212,7 @@ func (p Paths) UninstallService() error {
 	}
 	defer u()
 	if _, e := os.Lstat(filepath.Join(p.State, "install-pending.json")); !os.IsNotExist(e) {
-		return errors.New("finish installation recovery with relai install --recover before uninstalling")
+		return errors.New("finish installation recovery with omai install --recover before uninstalling")
 	}
 	_, unit, cli := p.installTargets()
 	images := map[string]FileImage{}
@@ -221,13 +221,13 @@ func (p Paths) UninstallService() error {
 		if e != nil {
 			return e
 		}
-		if before.Exists && !strings.HasPrefix(string(before.Data), "# Managed by Relai\n") && !strings.HasPrefix(string(before.Data), "#!/bin/sh\n# Managed by Relai\n") {
+		if before.Exists && !strings.HasPrefix(string(before.Data), "# Managed by omai\n") && !strings.HasPrefix(string(before.Data), "#!/bin/sh\n# Managed by omai\n") {
 			return fmt.Errorf("refusing unrelated file: %s", path)
 		}
 		images[path] = before
 	}
 	if images[unit].Exists {
-		if e = systemctl("disable", "--now", "relai.service"); e != nil {
+		if e = systemctl("disable", "--now", "omai.service"); e != nil {
 			return e
 		}
 	}

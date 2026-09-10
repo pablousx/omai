@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"encoding/json"
@@ -153,7 +153,7 @@ func makeBinding(p Paths, provider, key string, m Manifest) (Binding, bool) {
 		if provider == "codex" {
 			b.Kind = "command-skill"
 			name := strings.TrimSuffix(strings.TrimPrefix(key, "commands/"), ".md")
-			b.Path = filepath.Join(p.Home, ".agents/skills", "relai-command-"+name, "SKILL.md")
+			b.Path = filepath.Join(p.Home, ".agents/skills", "omai-command-"+name, "SKILL.md")
 		}
 	case "personal":
 		if provider != "personal" {
@@ -182,7 +182,7 @@ func buildAdapters(p Paths, c Config, m Manifest, v Values, old map[string]Bindi
 		target := filepath.Join(p.Home, strings.TrimPrefix(f.Path, "~/"))
 		for _, protected := range []string{p.Config, p.Data, p.State, nativeRoot(p, "codex"), nativeRoot(p, "claude"), nativeRoot(p, "opencode"), filepath.Join(p.Home, ".agents")} {
 			if target == protected || strings.HasPrefix(target, protected+string(filepath.Separator)) {
-				return nil, errors.New("personal destination overlaps Relai or a provider root")
+				return nil, errors.New("personal destination overlaps omai or a provider root")
 			}
 		}
 	}
@@ -333,7 +333,7 @@ func buildAdapters(p Paths, c Config, m Manifest, v Values, old map[string]Bindi
 					a.Warnings = append(a.Warnings, provider+": symlink resource skipped: "+kind+"/"+rel)
 					return nil
 				}
-				if kind == "skills" && strings.HasPrefix(rel, "relai-command-") {
+				if kind == "skills" && strings.HasPrefix(rel, "omai-command-") {
 					if d.IsDir() {
 						return filepath.SkipDir
 					}
@@ -535,7 +535,7 @@ func (a *AdapterSet) read(b Binding) (json.RawMessage, error) {
 }
 func commandPrefix(key string) string {
 	name := strings.TrimSuffix(strings.TrimPrefix(key, "commands/"), ".md")
-	return "---\nname: relai-command-" + name + "\ndescription: " + string(raw("Personal command: "+name)) + "\ndisable-model-invocation: true\n---\n\n"
+	return "---\nname: omai-command-" + name + "\ndescription: " + string(raw("Personal command: "+name)) + "\ndisable-model-invocation: true\n---\n\n"
 }
 func (a *AdapterSet) write(b Binding, v json.RawMessage) error {
 	if b.Linked {

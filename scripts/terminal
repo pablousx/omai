@@ -1,8 +1,8 @@
 #!/bin/bash
 set -uo pipefail
-relai_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-"$relai_root/scripts/relai" "$@"
-relai_result=$?
+omai_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+"$omai_root/scripts/omai" "$@"
+omai_result=$?
 printf '\nPress Enter to close.'
 read -r _
-exit "$relai_result"
+exit "$omai_result"

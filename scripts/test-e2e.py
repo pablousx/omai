@@ -31,7 +31,7 @@ def content(path):
         return ""
 
 
-with tempfile.TemporaryDirectory(prefix="relai-e2e-") as folder:
+with tempfile.TemporaryDirectory(prefix="omai-e2e-") as folder:
     root = Path(folder)
     remote = root / "remote.git"
     subprocess.run(["git", "init", "--bare", "--initial-branch=main", str(remote)],
@@ -57,8 +57,8 @@ with tempfile.TemporaryDirectory(prefix="relai-e2e-") as folder:
                 return result
             cli("setup", "--yes", "--no-service", "--remote", str(remote),
                 "--providers", "codex,claude,opencode", "--machine", name)
-            source = home / ".config/relai/source"
-            state = home / ".local/state/relai"
+            source = home / ".config/omai/source"
+            state = home / ".local/state/omai"
             cfg = source.parent / "config.json"
             data = json.loads(cfg.read_text())
             data.update(poll_seconds=1, sync_seconds=1)

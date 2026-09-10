@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy policy — omai</title>
+    <meta
+      name="description"
+      content="What omai accesses, where your configuration goes, and the choices you have. For the plugin and this website."
+    />
+    <meta name="theme-color" content="#1a1b26" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Privacy policy — omai" />
+    <meta
+      property="og:description"
+      content="What omai accesses, where your configuration goes, and the choices you have. For the plugin and this website."
+    />
+    <meta property="og:site_name" content="omai" />
+    <meta
+      property="og:url"
+      content="https://sites.steralynx.com/omai/privacy.html"
+    />
+    <link
+      rel="canonical"
+      href="https://sites.steralynx.com/omai/privacy.html"
+    />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/site.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="omai home"
+          ><svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path
+              d="M16 2c1.8 8.6 5.4 12.2 14 14-8.6 1.8-12.2 5.4-14 14C14.2 21.4 10.6 17.8 2 16 10.6 14.2 14.2 10.6 16 2Z"
+              fill="currentColor"
+            /></svg
+          ><span>omai<span class="accent">.</span></span></a
+        >
+        <nav class="site-nav" aria-label="Main navigation">
+          <a class="desktop-link" href="index.html#how-it-works">How it works</a
+          ><a href="index.html#install">Install</a
+          ><a href="https://github.com/pablousx/omai"
+            >GitHub <span aria-hidden="true">↗</span></a
+          ><button
+            class="theme-button"
+            type="button"
+            data-theme-toggle
+            hidden
+            aria-label="Change color theme"
+          >
+            <span class="theme-swatch" aria-hidden="true"></span
+            ><span data-theme-name>Tokyo Night</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div class="container">
+        <header class="legal-hero">
+          <div class="breadcrumb">
+            <a href="index.html">omai</a> / privacy policy
+          </div>
+          <div class="eyebrow">THE DETAILS, IN THE OPEN</div>
+          <h1>Privacy policy<span class="accent">.</span></h1>
+          <p class="lede">
+            What omai accesses, where your configuration goes, and the choices
+            you have. For the plugin and this website.
+          </p>
+          <p class="legal-date">
+            Effective <time datetime="2026-09-10">September 10, 2026</time> ·
+            Maintained by pablousx
+          </p>
+        </header>
+        <div class="legal-layout">
+          <nav class="legal-nav" aria-label="On this page">
+            <p>On this page</p>
+            <a href="#about">01 / Who this policy covers</a
+            ><a href="#data">02 / What the plugin accesses</a
+            ><a href="#destinations">03 / Where data goes</a
+            ><a href="#storage">04 / Local storage and retention</a
+            ><a href="#controls">05 / Your choices and controls</a
+            ><a href="#website">06 / This website</a
+            ><a href="#contact">07 / Support and privacy requests</a
+            ><a href="#changes">08 / Policy changes</a>
+          </nav>
+          <article class="legal-body" aria-label="Privacy policy">
+            <div class="legal-callout">
+              <p>
+                Your setup lives on your computer and, if you connect one, your
+                Git remote. There is no omai cloud account or configuration
+                service.
+              </p>
+            </div>
+            <section id="about" aria-labelledby="about-title">
+              <h2 id="about-title">
+                <span class="index">01</span>Who this policy covers
+              </h2>
+              <p>
+                This policy describes the omai desktop plugin and this website,
+                maintained by
+                <a href="https://github.com/pablousx">pablousx</a>. omai is an
+                independent open-source project. It does not run a hosted
+                configuration service or require an omai account.
+              </p>
+            </section>
+            <section id="data" aria-labelledby="data-title">
+              <h2 id="data-title">
+                <span class="index">02</span>What the plugin accesses
+              </h2>
+              <p>
+                omai reads supported global configuration for Codex, Claude
+                Code, and OpenCode: instructions, rules, text skills and
+                resources, selected settings, MCP declarations, and supported
+                hooks, agents, commands, and plugin declarations. It can also
+                manage a non-secret personal text file that you explicitly
+                enroll.
+              </p>
+              <p>
+                Connection settings, provider choices, computer labels, sync
+                timestamps, conflict decisions, and recovery records are stored
+                locally. Project configuration, account and credential stores,
+                sessions, histories, and caches are excluded from the
+                synchronized source.
+              </p>
+              <p>
+                omai uses your existing Git and SSH authentication. It does not
+                ask for AI-provider passwords or copy their account databases.
+                Credential literals identified by its content checks stay local;
+                <strong
+                  >those checks are not a guarantee that arbitrary text contains
+                  no secrets</strong
+                >.
+              </p>
+            </section>
+            <section id="destinations" aria-labelledby="destinations-title">
+              <h2 id="destinations-title">
+                <span class="index">03</span>Where data goes
+              </h2>
+              <p>
+                Without a configured remote, reconciliation stays on your
+                computer. With a remote, validated files in
+                <code>~/.config/omai/source/</code> and their Git history are
+                sent to the Git destination you choose. People and services with
+                repository access may read that content. Public repositories
+                make it public.
+              </p>
+              <p>
+                The project maintainer does not receive your configuration
+                simply because you use omai. Your Git host handles repository
+                contents, authentication, and connection metadata under its own
+                policies. Git commits use the application identity
+                <code>omai &lt;omai@localhost&gt;</code>; your computer labels
+                are local annotations.
+              </p>
+              <p>
+                Installation and updates may contact GitHub for the plugin or
+                release assets. An optional source build may contact Go module
+                and toolchain distributors. The AI providers and any MCP servers
+                you run have their own data practices; omai does not operate
+                those services.
+              </p>
+            </section>
+            <section id="storage" aria-labelledby="storage-title">
+              <h2 id="storage-title">
+                <span class="index">04</span>Local storage and retention
+              </h2>
+              <p>
+                Configuration is stored under <code>~/.config/omai/</code>, the
+                executable and Git repository under
+                <code>~/.local/share/omai/</code>, and recovery/state records
+                under <code>~/.local/state/omai/</code>. Custom XDG base
+                directories are respected.
+              </p>
+              <p>
+                Local recovery records can contain full preimages of mixed
+                configuration files, including local fields that are not
+                eligible for Git sync. Keep those records private. They are not
+                uploaded as sync inputs.
+              </p>
+              <p>
+                Automatic recovery cleanup defaults to 30 days, 100 journals,
+                and 512 MiB. Pending or unreadable records and the latest
+                rollback generation are protected, so usage can exceed those
+                limits. These limits do not delete Git history from your local
+                or remote repository.
+              </p>
+            </section>
+            <section id="controls" aria-labelledby="controls-title">
+              <h2 id="controls-title">
+                <span class="index">05</span>Your choices and controls
+              </h2>
+              <p>
+                You choose the repository and its access rules. You can pause or
+                stop sync, inspect your source, change supported settings,
+                review conflicts, and use local recovery through the plugin.
+              </p>
+              <p>
+                <strong>Clear settings (keeps configs)</strong> stops sync and
+                removes omai’s connection settings and preferences. It keeps
+                provider files, canonical source, Git history, and recovery
+                records. Removing the bar plugin alone does not stop the
+                companion service.
+              </p>
+              <p>
+                To remove stored data, first stop the service, then use the
+                <a
+                  href="https://github.com/pablousx/omai/blob/main/docs/operations.md"
+                  >operations guide</a
+                >
+                to review the local paths. Delete remote repositories or history
+                through your Git host separately. Removing a file from the
+                current source does not erase earlier Git commits.
+              </p>
+            </section>
+            <section id="website" aria-labelledby="website-title">
+              <h2 id="website-title">
+                <span class="index">06</span>This website
+              </h2>
+              <p>
+                The site is static HTML, CSS, and JavaScript hosted with GitHub
+                Pages. Its code uses no advertising, analytics, tracking pixels,
+                cookies, external font services, or embedded third-party
+                content.
+              </p>
+              <p>
+                If you change the color theme, the site stores only that choice
+                in your browser’s local storage under <code>omai-theme</code>.
+                It is not sent to the maintainer and can be removed by clearing
+                site data. Copy buttons access the clipboard only when clicked.
+              </p>
+              <p>
+                GitHub may process technical information such as IP addresses
+                and request logs to serve and secure the website. See
+                <a
+                  href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement"
+                  >GitHub’s Privacy Statement</a
+                >. Following an external link takes you to a service with its
+                own policies.
+              </p>
+            </section>
+            <section id="contact" aria-labelledby="contact-title">
+              <h2 id="contact-title">
+                <span class="index">07</span>Support and privacy requests
+              </h2>
+              <p>
+                If you open a GitHub issue or send information to the
+                maintainer, that information is used to respond to your request
+                and maintain the project. Public issues are visible to others.
+                Do not include credentials, private configuration, or recovery
+                journals.
+              </p>
+              <p>
+                For a privacy question, use the contact options on
+                <a href="https://github.com/pablousx"
+                  >the maintainer’s GitHub profile</a
+                >
+                or
+                <a href="https://github.com/pablousx/omai/issues"
+                  >open a minimal issue</a
+                >
+                requesting a private channel. For vulnerabilities, follow the
+                <a href="https://github.com/pablousx/omai/blob/main/SECURITY.md"
+                  >security reporting instructions</a
+                >. The maintainer cannot remove data held independently by your
+                Git host or AI providers; contact them for those requests.
+              </p>
+            </section>
+            <section id="changes" aria-labelledby="changes-title">
+              <h2 id="changes-title">
+                <span class="index">08</span>Policy changes
+              </h2>
+              <p>
+                Updates to this policy will appear here with a revised effective
+                date. Material changes to the project’s data handling will be
+                described in its release documentation.
+              </p>
+            </section>
+            <div class="legal-end">
+              <a href="index.html">← Back to omai</a
+              ><a href="terms.html">Terms of service →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-top">
+          <a class="brand" href="index.html"
+            ><svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <path
+                d="M16 2c1.8 8.6 5.4 12.2 14 14-8.6 1.8-12.2 5.4-14 14C14.2 21.4 10.6 17.8 2 16 10.6 14.2 14.2 10.6 16 2Z"
+                fill="currentColor"
+              /></svg
+            ><span>omai<span class="accent">.</span></span></a
+          >
+          <nav class="footer-links" aria-label="Footer navigation">
+            <a href="privacy.html" aria-current="page">Privacy policy</a
+            ><a href="terms.html">Terms of service</a
+            ><a href="https://github.com/pablousx/omai/issues">Contact ↗</a
+            ><a href="https://github.com/pablousx/omai/blob/main/LICENSE"
+              >MIT license ↗</a
+            >
+          </nav>
+        </div>
+        <div class="footer-bottom">
+          <span
+            >Made by <a href="https://github.com/pablousx">pablousx</a> for the
+            <a href="https://omarchy.org/">Omarchy</a> desktop.</span
+          ><span
+            >Also for your desktop:
+            <a href="https://pablousx.github.io/omadocs/">omadocs ↗</a></span
+          >
+        </div>
+        <div class="footer-wordmark" aria-hidden="true">omai.</div>
+      </div>
+    </footer>
+  </body>
+</html>

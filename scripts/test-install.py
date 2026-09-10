@@ -24,10 +24,10 @@ version = json.loads((repo / "manifest.json").read_text())["version"]
 
 
 def archive_at(folder, payload, unsafe=False):
-    name = f"relai_{version}_linux_amd64.tar.gz"
+    name = f"omai_{version}_linux_amd64.tar.gz"
     path = folder / name
     with tarfile.open(path, "w:gz") as bundle:
-        for label, data in [("relai", payload), ("LICENSE", b"MIT\n")]:
+        for label, data in [("omai", payload), ("LICENSE", b"MIT\n")]:
             info = tarfile.TarInfo(label)
             info.size, info.mode = len(data), 0o755
             bundle.addfile(info, io.BytesIO(data))
@@ -39,7 +39,7 @@ def archive_at(folder, payload, unsafe=False):
     return path
 
 
-with tempfile.TemporaryDirectory(prefix="relai-install-test-") as tmp:
+with tempfile.TemporaryDirectory(prefix="omai-install-test-") as tmp:
     root = Path(tmp)
     plugin = root / "readonly plugin"
     plugin.mkdir()
@@ -52,20 +52,20 @@ with tempfile.TemporaryDirectory(prefix="relai-install-test-") as tmp:
     archive = archive_at(fixtures, binary.read_bytes())
     fake_tool = '''#!PYTHON
 import json, os, pathlib, shutil, sys, time
-root=pathlib.Path(os.environ["RELAI_INSTALL_TEST"])
+root=pathlib.Path(os.environ["OMAI_INSTALL_TEST"])
 args=sys.argv[1:]
 tool=pathlib.Path(sys.argv[0]).name
 with (root/"calls").open("a") as out: out.write(json.dumps([tool]+args)+"\\n")
 if tool=="curl":
  if (root/"download-fail").exists(): sys.exit(22)
- assert args[-1].startswith("https://github.com/pablousx/relai/releases/download/v"+os.environ["RELAI_TEST_VERSION"]+"/")
+ assert args[-1].startswith("https://github.com/pablousx/omai/releases/download/v"+os.environ["OMAI_TEST_VERSION"]+"/")
  assert "--proto" in args and "--proto-redir" in args
  target=args[args.index("--output")+1]
  shutil.copyfile(root/"fixtures"/args[-1].rsplit("/",1)[1],target)
 elif tool=="mise":
- assert args[0]=="exec" and args[1]=="go@"+os.environ["RELAI_TEST_GO"]
+ assert args[0]=="exec" and args[1]=="go@"+os.environ["OMAI_TEST_GO"]
  target=args[args.index("-o")+1]
- shutil.copyfile(os.environ["RELAI_TEST_BINARY"],target)
+ shutil.copyfile(os.environ["OMAI_TEST_BINARY"],target)
  module=pathlib.Path(os.environ["GOMODCACHE"])/"fixture-module"
  module.mkdir(parents=True)
  (module/"go.mod").write_text("module fixture")
@@ -106,13 +106,13 @@ elif tool=="systemctl":
     env.update(HOME=str(home), XDG_CONFIG_HOME=str(root / "custom config"),
                XDG_DATA_HOME=str(root / "custom data"), XDG_STATE_HOME=str(root / "custom state"),
                XDG_CACHE_HOME=str(root / "cache"), XDG_RUNTIME_DIR=str(root / "runtime"), TMPDIR=str(temp),
-               PATH=str(tools_dir) + ":" + env["PATH"], RELAI_INSTALL_TEST=str(root),
-               RELAI_TEST_VERSION=version, RELAI_TEST_GO=pin, RELAI_TEST_BINARY=str(binary))
-    dest = Path(env["XDG_DATA_HOME"]) / "relai/bin/relai"
-    state = Path(env["XDG_STATE_HOME"]) / "relai"
-    config = Path(env["XDG_CONFIG_HOME"]) / "relai"
-    unit = Path(env["XDG_CONFIG_HOME"]) / "systemd/user/relai.service"
-    cli = home / ".local/bin/relai"
+               PATH=str(tools_dir) + ":" + env["PATH"], OMAI_INSTALL_TEST=str(root),
+               OMAI_TEST_VERSION=version, OMAI_TEST_GO=pin, OMAI_TEST_BINARY=str(binary))
+    dest = Path(env["XDG_DATA_HOME"]) / "omai/bin/omai"
+    state = Path(env["XDG_STATE_HOME"]) / "omai"
+    config = Path(env["XDG_CONFIG_HOME"]) / "omai"
+    unit = Path(env["XDG_CONFIG_HOME"]) / "systemd/user/omai.service"
+    cli = home / ".local/bin/omai"
     source_hashes = {str(p.relative_to(plugin)): hashlib.sha256(p.read_bytes()).hexdigest()
                      for p in plugin.rglob("*") if p.is_file()}
     for p in plugin.rglob("*"):
@@ -142,7 +142,7 @@ elif tool=="systemctl":
         run(plugin_bridge, "update", "--source")
         assert dest.read_bytes() == prior and not list(temp.iterdir())
         (root / "download-fail").unlink()
-        source_before = (config / "source/relai.json").read_bytes()
+        source_before = (config / "source/omai.json").read_bytes()
         run(str(dest), "settings", "clear", ok=False)
         assert (config / "config.json").exists(), "reset without confirmation changed settings"
         (root / "stop-fail").touch()
@@ -151,7 +151,7 @@ elif tool=="systemctl":
         (root / "stop-fail").unlink()
         run(str(dest), "settings", "clear", "--yes")
         assert not (config / "config.json").exists() and not (root / "active").exists() and not (root / "enabled").exists()
-        assert (config / "source/relai.json").read_bytes() == source_before
+        assert (config / "source/omai.json").read_bytes() == source_before
         run(plugin_bridge, "setup", "--remote", "", "--machine", "Fresh preferences", "--seed", "")
         assert (root / "active").exists() and json.loads((config / "config.json").read_text())["machine"] == "Fresh preferences"
         run(str(dest), "daemon", "uninstall")
@@ -208,7 +208,7 @@ elif tool=="systemctl":
         assert unit.read_bytes() == prior_unit and (state / "paused.json").exists()
 
         # Kill a real updater after it writes installation files, before activation.
-        unit.write_text("# Managed by Relai\nold unit to recover\n")
+        unit.write_text("# Managed by omai\nold unit to recover\n")
         (root / "interrupt").touch()
         process = subprocess.Popen([str(plugin / "scripts/setup"), "--install-only"], env=env,
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
@@ -227,7 +227,7 @@ elif tool=="systemctl":
                 process.wait(timeout=5)
             (root / "interrupt").unlink()
         run(str(dest), "install", "--recover")
-        assert unit.read_text() == "# Managed by Relai\nold unit to recover\n"
+        assert unit.read_text() == "# Managed by omai\nold unit to recover\n"
         assert (root / "active").exists() and not (state / "install-pending.json").exists()
         setup()
         assert (state / "paused.json").exists()

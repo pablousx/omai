@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"bytes"
@@ -93,7 +93,7 @@ func agentMarkdown(a Agent) []byte {
 	return []byte("---\ndescription: " + string(raw(a.Description)) + "\n---\n\n" + a.Prompt)
 }
 
-const rulePrefix = "<!-- relai:rule "
+const rulePrefix = "<!-- omai:rule "
 
 func parseInstructions(b []byte) (map[string]any, error) {
 	s := string(b)
@@ -108,16 +108,16 @@ func parseInstructions(b []byte) (map[string]any, error) {
 		tail := s[i:]
 		end := strings.Index(tail, " -->\n")
 		if !strings.HasPrefix(tail, rulePrefix) || end < 0 {
-			return nil, errors.New("damaged Relai rule markers")
+			return nil, errors.New("damaged omai rule markers")
 		}
 		name := tail[len(rulePrefix):end]
 		if e := safeRel(name); e != nil {
 			return nil, e
 		}
-		finish := "\n<!-- /relai:rule " + name + " -->"
+		finish := "\n<!-- /omai:rule " + name + " -->"
 		n := strings.Index(tail[end+5:], finish)
 		if n < 0 {
-			return nil, errors.New("damaged Relai rule end marker")
+			return nil, errors.New("damaged omai rule end marker")
 		}
 		content := tail[end+5 : end+5+n]
 		m["rule:"+name] = content
@@ -147,7 +147,7 @@ func (d *Document) encode() ([]byte, error) {
 			if strings.HasPrefix(k, "rule:") {
 				name := strings.TrimPrefix(k, "rule:")
 				content, _ := d.Map[k].(string)
-				s += "\n\n" + rulePrefix + name + " -->\n" + content + "\n<!-- /relai:rule " + name + " -->"
+				s += "\n\n" + rulePrefix + name + " -->\n" + content + "\n<!-- /omai:rule " + name + " -->"
 			}
 		}
 		return []byte(s), nil

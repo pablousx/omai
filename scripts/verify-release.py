@@ -15,11 +15,11 @@ if len(checks) != 1 or hashlib.sha256(archive.read_bytes()).hexdigest() != check
     raise SystemExit("Release checksum verification failed; installation unchanged")
 with tarfile.open(archive, "r:gz") as bundle:
     members = bundle.getmembers()
-    if sorted(m.name for m in members) != ["LICENSE", "relai"]:
+    if sorted(m.name for m in members) != ["LICENSE", "omai"]:
         raise SystemExit("Unexpected release archive contents")
     for member in members:
         if not member.isfile() or member.size > 64 * 1024 * 1024:
             raise SystemExit("Unsafe release archive member")
-    with bundle.extractfile("relai") as source:
-        with (stage / "relai").open("xb") as target:
+    with bundle.extractfile("omai") as source:
+        with (stage / "omai").open("xb") as target:
             target.write(source.read())

@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var ErrConflict = errors.New("unresolved conflicts; use relai conflicts")
+var ErrConflict = errors.New("unresolved conflicts; use omai conflicts")
 var ErrOffline = errors.New("remote unavailable; local changes are safe and will retry")
 
 type State struct {
@@ -345,7 +345,7 @@ func (p Paths) Sync(opt SyncOptions) (result Status, err error) {
 	defer unlock()
 	c, e := p.LoadConfig()
 	if e != nil {
-		return p.Status(), errors.New("setup required: run relai setup")
+		return p.Status(), errors.New("setup required: run omai setup")
 	}
 	warnings := []string{}
 	previous := p.Status()
@@ -516,7 +516,7 @@ func (p Paths) Status() Status {
 		}
 		notes := []string{}
 		if name == "codex" {
-			notes = append(notes, "Commands are explicit skills: $relai-command-NAME")
+			notes = append(notes, "Commands are explicit skills: $omai-command-NAME")
 		}
 		if name == "opencode" {
 			notes = append(notes, "Hooks use native JavaScript plugins")
@@ -542,7 +542,7 @@ func (p Paths) Status() Status {
 	s.BackupBytes, s.BackupCount = backupBytes, backupCount
 	limits := c.Retention.defaults()
 	if backupCount > limits.Count || backupBytes > limits.Bytes {
-		s.Warnings = uniqueStrings(append(s.Warnings, "Recovery history exceeds retention limits; run relai backups list"))
+		s.Warnings = uniqueStrings(append(s.Warnings, "Recovery history exceeds retention limits; run omai backups list"))
 	}
 	if len(readErrors) > 0 {
 		s.Health, s.Error = "error", strings.Join(readErrors, "; ")
@@ -559,7 +559,7 @@ func (p Paths) Doctor() (Status, []string) {
 		if s.Error != "" {
 			issues = append(issues, s.Error)
 		}
-		issues = append(issues, "Setup required: relai setup")
+		issues = append(issues, "Setup required: omai setup")
 		return s, issues
 	}
 	if _, e := execLookPath("git"); e != nil {
@@ -613,7 +613,7 @@ func (p Paths) Doctor() (Status, []string) {
 	}
 	for _, key := range []string{"OPENCODE_CONFIG", "OPENCODE_CONFIG_DIR", "OPENCODE_CONFIG_CONTENT"} {
 		if os.Getenv(key) != "" {
-			issues = append(issues, key+" adds a local override outside Relai's global config")
+			issues = append(issues, key+" adds a local override outside omai's global config")
 		}
 	}
 	for _, w := range s.Warnings {

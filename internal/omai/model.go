@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"bytes"
@@ -23,7 +23,7 @@ type Paths struct{ Home, Config, Data, State, Source string }
 func (p Paths) validatePaths() error {
 	for _, path := range []string{p.Home, p.Config, p.Data, p.State, p.Source} {
 		if !filepath.IsAbs(path) {
-			return errors.New("Relai requires absolute HOME and XDG paths")
+			return errors.New("omai requires absolute HOME and XDG paths")
 		}
 	}
 	return nil
@@ -37,16 +37,16 @@ func NewPaths(home string) Paths {
 		}
 		return filepath.Join(home, fallback)
 	}
-	p.Config = filepath.Join(base("XDG_CONFIG_HOME", ".config"), "relai")
-	p.Data = filepath.Join(base("XDG_DATA_HOME", ".local/share"), "relai")
-	p.State = filepath.Join(base("XDG_STATE_HOME", ".local/state"), "relai")
+	p.Config = filepath.Join(base("XDG_CONFIG_HOME", ".config"), "omai")
+	p.Data = filepath.Join(base("XDG_DATA_HOME", ".local/share"), "omai")
+	p.State = filepath.Join(base("XDG_STATE_HOME", ".local/state"), "omai")
 	p.Source = filepath.Join(p.Config, "source")
 	return p
 }
 
 // FakePaths deliberately ignores the process's XDG/provider overrides.
 func FakePaths(home string) Paths {
-	return Paths{home, filepath.Join(home, ".config/relai"), filepath.Join(home, ".local/share/relai"), filepath.Join(home, ".local/state/relai"), filepath.Join(home, ".config/relai/source")}
+	return Paths{home, filepath.Join(home, ".config/omai"), filepath.Join(home, ".local/share/omai"), filepath.Join(home, ".local/state/omai"), filepath.Join(home, ".config/omai/source")}
 }
 
 type Config struct {
@@ -182,7 +182,7 @@ func isProvider(s string) bool {
 
 // Source directories are an explicit allowlist. Nothing else can enter Git.
 func allowedSource(path string) bool {
-	if path == "relai.json" || path == "instructions.md" {
+	if path == "omai.json" || path == "instructions.md" {
 		return true
 	}
 	parts := strings.Split(path, "/")
@@ -230,7 +230,7 @@ func loadTree(dir string) (Tree, error) {
 		}
 		rel, _ := filepath.Rel(dir, path)
 		rel = filepath.ToSlash(rel)
-		if strings.HasPrefix(filepath.Base(rel), ".relai-") {
+		if strings.HasPrefix(filepath.Base(rel), ".omai-") {
 			if d.IsDir() {
 				return filepath.SkipDir
 			}
@@ -297,17 +297,17 @@ func parseSource(t Tree) (Manifest, Values, error) {
 		return m, v, errors.New("source exceeds 16 MiB or 2048 files")
 	}
 
-	b, ok := t["relai.json"]
+	b, ok := t["omai.json"]
 	if !ok {
-		return m, v, errors.New("source/relai.json is missing")
+		return m, v, errors.New("source/omai.json is missing")
 	}
 	dec := json.NewDecoder(bytes.NewReader(b.Data))
 	dec.DisallowUnknownFields()
 	if e := dec.Decode(&m); e != nil {
-		return m, v, fmt.Errorf("relai.json: %w", e)
+		return m, v, fmt.Errorf("omai.json: %w", e)
 	}
 	if e := dec.Decode(new(any)); e != io.EOF {
-		return m, v, errors.New("relai.json must contain exactly one JSON object")
+		return m, v, errors.New("omai.json must contain exactly one JSON object")
 	}
 	if m.Version != 1 {
 		return m, v, errors.New("unsupported source version")
@@ -360,7 +360,7 @@ func parseSource(t Tree) (Manifest, Values, error) {
 		}
 	}
 	for _, path := range sortedKeys(t) {
-		if path == "relai.json" {
+		if path == "omai.json" {
 			continue
 		}
 		b := t[path]
@@ -474,14 +474,14 @@ func sourceWithValues(t Tree, m Manifest, v Values) (Tree, error) {
 		}
 		out[k] = f
 	}
-	out["relai.json"] = Blob{jsonBytes(m), 0600}
+	out["omai.json"] = Blob{jsonBytes(m), 0600}
 	// Keep original formatting when the manifest's meaning did not change.
 	var old any
 	var fresh any
-	_ = json.Unmarshal(t["relai.json"].Data, &old)
-	_ = json.Unmarshal(out["relai.json"].Data, &fresh)
+	_ = json.Unmarshal(t["omai.json"].Data, &old)
+	_ = json.Unmarshal(out["omai.json"].Data, &fresh)
 	if same(raw(old), raw(fresh)) {
-		out["relai.json"] = t["relai.json"]
+		out["omai.json"] = t["omai.json"]
 	}
 	if _, _, e := parseSource(out); e != nil {
 		return nil, e

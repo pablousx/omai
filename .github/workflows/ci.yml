@@ -22,11 +22,11 @@ jobs:
           cache: true
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
       - name: Workflow lint
-        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -config-file .github/actionlint.yaml .github/workflows/ci.yml .github/workflows/release.yml
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -config-file .github/actionlint.yaml .github/workflows/*.yml
       - name: Regression and installation checks
         run: scripts/check
       - name: Generated systemd unit
-        run: python3 scripts/test-install.py build/relai --verify-unit
+        run: python3 scripts/test-install.py build/omai --verify-unit
       - name: Reachable dependency vulnerabilities
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
       - name: Build and verify release archives
@@ -34,7 +34,7 @@ jobs:
           python3 scripts/package-release.py
           mkdir -p build/verified
           cp build/release/*.tar.gz build/release/SHA256SUMS build/verified/
-          python3 scripts/verify-release.py build/verified "relai_$(build/relai version)_linux_amd64.tar.gz"
-          chmod 700 build/verified/relai
-          python3 scripts/check-release.py --binary build/verified/relai
-          python3 scripts/test-e2e.py build/verified/relai
+          python3 scripts/verify-release.py build/verified "omai_$(build/omai version)_linux_amd64.tar.gz"
+          chmod 700 build/verified/omai
+          python3 scripts/check-release.py --binary build/verified/omai
+          python3 scripts/test-e2e.py build/verified/omai

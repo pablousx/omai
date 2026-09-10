@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"bytes"
@@ -236,15 +236,15 @@ func fakeSystemctl(t *testing.T) string {
 	dir := t.TempDir()
 	stub := `#!/bin/sh
 set -eu
-printf '%s\n' "$*" >> "$RELAI_SERVICE_TEST/calls"
+printf '%s\n' "$*" >> "$OMAI_SERVICE_TEST/calls"
 shift
 case "$1" in
- is-active) test -f "$RELAI_SERVICE_TEST/active" ;;
- is-enabled) test -f "$RELAI_SERVICE_TEST/enabled" ;;
- stop) rm -f "$RELAI_SERVICE_TEST/active" ;;
- disable) rm -f "$RELAI_SERVICE_TEST/enabled"; if [ "${2:-}" = --now ]; then rm -f "$RELAI_SERVICE_TEST/active"; fi ;;
- enable) touch "$RELAI_SERVICE_TEST/enabled"; if [ "${2:-}" = --now ]; then touch "$RELAI_SERVICE_TEST/active"; fi ;;
- start) if [ -f "$RELAI_SERVICE_TEST/fail" ]; then rm "$RELAI_SERVICE_TEST/fail"; exit 1; fi; touch "$RELAI_SERVICE_TEST/active" ;;
+ is-active) test -f "$OMAI_SERVICE_TEST/active" ;;
+ is-enabled) test -f "$OMAI_SERVICE_TEST/enabled" ;;
+ stop) rm -f "$OMAI_SERVICE_TEST/active" ;;
+ disable) rm -f "$OMAI_SERVICE_TEST/enabled"; if [ "${2:-}" = --now ]; then rm -f "$OMAI_SERVICE_TEST/active"; fi ;;
+ enable) touch "$OMAI_SERVICE_TEST/enabled"; if [ "${2:-}" = --now ]; then touch "$OMAI_SERVICE_TEST/active"; fi ;;
+ start) if [ -f "$OMAI_SERVICE_TEST/fail" ]; then rm "$OMAI_SERVICE_TEST/fail"; exit 1; fi; touch "$OMAI_SERVICE_TEST/active" ;;
  daemon-reload) : ;;
  *) exit 1 ;;
 esac
@@ -253,7 +253,7 @@ esac
 	if e := os.Chmod(filepath.Join(dir, "systemctl"), 0700); e != nil {
 		t.Fatal(e)
 	}
-	t.Setenv("RELAI_SERVICE_TEST", dir)
+	t.Setenv("OMAI_SERVICE_TEST", dir)
 	t.Setenv("PATH", dir+":"+os.Getenv("PATH"))
 	return dir
 }
@@ -265,8 +265,8 @@ func TestInstallationPreservesServiceStateAndRestoresFailedUpgrade(t *testing.T)
 			p := fake(t)
 			dest, unit, cli := p.installTargets()
 			put(t, dest, "old binary")
-			put(t, unit, "# Managed by Relai\nold unit\n")
-			put(t, cli, "#!/bin/sh\n# Managed by Relai\nold CLI\n")
+			put(t, unit, "# Managed by omai\nold unit\n")
+			put(t, cli, "#!/bin/sh\n# Managed by omai\nold CLI\n")
 			if active {
 				put(t, filepath.Join(dir, "active"), "")
 				put(t, filepath.Join(dir, "enabled"), "")
@@ -352,12 +352,12 @@ func TestUninstallOnlyOwnedFilesAndRetainsData(t *testing.T) {
 		t.Fatal(e)
 	}
 	dest, unit, cli := p.installTargets()
-	before := get(t, filepath.Join(p.Source, "relai.json"))
+	before := get(t, filepath.Join(p.Source, "omai.json"))
 	put(t, cli, "unrelated")
 	if e := p.UninstallService(); e == nil {
 		t.Fatal("removed unrelated launcher")
 	}
-	put(t, cli, "#!/bin/sh\n# Managed by Relai\nexit 0\n")
+	put(t, cli, "#!/bin/sh\n# Managed by omai\nexit 0\n")
 	if e := p.UninstallService(); e != nil {
 		t.Fatal(e)
 	}
@@ -369,7 +369,7 @@ func TestUninstallOnlyOwnedFilesAndRetainsData(t *testing.T) {
 	if _, e := os.Stat(dest); e != nil {
 		t.Fatal("uninstall deleted binary", e)
 	}
-	if get(t, filepath.Join(p.Source, "relai.json")) != before {
+	if get(t, filepath.Join(p.Source, "omai.json")) != before {
 		t.Fatal("uninstall changed source")
 	}
 }

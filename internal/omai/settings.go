@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"errors"
@@ -29,10 +29,10 @@ func (p Paths) ClearSettings() error {
 		return e
 	}
 	if service.Exists {
-		if !strings.HasPrefix(string(service.Data), "# Managed by Relai\n") {
+		if !strings.HasPrefix(string(service.Data), "# Managed by omai\n") {
 			return fmt.Errorf("refusing unrelated service: %s", unit)
 		}
-		if e = systemctl("disable", "--now", "relai.service"); e != nil {
+		if e = systemctl("disable", "--now", "omai.service"); e != nil {
 			return e
 		}
 	}
@@ -40,7 +40,7 @@ func (p Paths) ClearSettings() error {
 	// also prevents a second daemon starting while settings are removed.
 	d, e := lock(filepath.Join(p.State, "daemon.lock"))
 	if e != nil {
-		return errors.New("stop the foreground Relai daemon before clearing settings")
+		return errors.New("stop the foreground omai daemon before clearing settings")
 	}
 	defer d()
 	op, e := lock(filepath.Join(p.State, "operation.lock"))

@@ -1,12 +1,12 @@
-# Publishing Relai
+# Publishing omai
 
-Relai is distributed as the public `pablousx/relai` GitHub repository plus versioned release assets. Omarchy installs the repository by Git URL. Marketplace submission is a separate optional step; see the [Omarchy publishing guide](https://plugins.omarchy.org/publish.html).
+omai is distributed as the public `pablousx/omai` GitHub repository plus versioned release assets. Omarchy installs the repository by Git URL. Marketplace submission is a separate optional step; see the [Omarchy publishing guide](https://plugins.omarchy.org/publish.html).
 
 ## Repository setup
 
-Confirm the remote points to `github.com/pablousx/relai`, the default branch is `main`, the MIT license is present, and GitHub Actions and private vulnerability reporting are enabled. Protect `main` with the CI check and restrict creation/movement of release tags to maintainers. Keep published release tags and assets immutable.
+Confirm the remote points to `github.com/pablousx/omai`, the default branch is `main`, the MIT license is present, and GitHub Actions and private vulnerability reporting are enabled. Protect `main` with the CI check and restrict creation/movement of release tags to maintainers. Keep published release tags and assets immutable.
 
-Ordinary CI runs on GitHub-hosted Ubuntu workers. The release workflow additionally requires a dedicated self-hosted Linux x86-64 runner labeled `omarchy`, with Omarchy 4.0.3+ and a running Wayland session. Use an isolated test account, not a workstation with private AI configuration. Its environment must expose `WAYLAND_DISPLAY` and `XDG_RUNTIME_DIR`. Register an up-to-date Actions runner compatible with the pinned Node-based actions. Pull requests never execute on this native runner.
+Ordinary CI runs on GitHub-hosted Ubuntu workers. The release workflow additionally requires a self-hosted Linux x86-64 runner labeled `omarchy` and `omai-release`, with Omarchy 4.0.3+ and a running Wayland session. Use an isolated test account or a one-job ephemeral runner inside a filesystem sandbox. A sandboxed runner must have an empty home, no access to the host home or session credentials, read-only system files, and only its temporary working directory writable. Expose the Wayland socket for fixture panels through `WAYLAND_DISPLAY` and `XDG_RUNTIME_DIR`; the tests capture only their own panels. Register an up-to-date Actions runner compatible with the pinned Node-based actions. Pull requests never execute on this native runner. An ephemeral runner deregisters after its job; remove its temporary credentials and files after verifying completion.
 
 The native release job is mandatory. Without an available runner and a passing QML suite, the workflow cannot create its draft release. It checks the exact tagged checkout and uploads fixture-panel screenshots for review.
 
@@ -15,7 +15,7 @@ The native release job is mandatory. Without an available runner and a passing Q
 1. Update `manifest.json`, the Go `Version` constant, the launcher's setup status, and the status fixture together. `scripts/check-release.py` checks production version consistency. Keep canonical/local schema versions at `1` unless an explicit migration is implemented.
 2. Update the changelog, release notes, compatibility record, and any affected operations instructions. The Go toolchain pin lives only in `mise.toml`; CI and source setup read it there.
 3. Run `mise run check`, `mise run audit`, and `mise run qml`. Verify clean setup, relay between two disposable machines, update/recovery, and service removal. The installer tests simulate release downloads, systemd, failed activation, and a killed updater.
-4. Run `mise run release`. Inspect `build/release/relai_VERSION_linux_amd64.tar.gz` and `SHA256SUMS`; the archive contains only `relai` and `LICENSE`. Build twice if changing packaging to verify deterministic checksums.
+4. Run `mise run release`. Inspect `build/release/omai_VERSION_linux_amd64.tar.gz` and `SHA256SUMS`; the archive contains only `omai` and `LICENSE`. Build twice if changing packaging to verify deterministic checksums.
 5. Capture fixture panels with `python3 scripts/test-qml.py --screenshots build/previews`, inspect them, and refresh `docs/screenshots/` when UI changes. No real desktop or provider content belongs in these images.
 
 ## Create and publish
@@ -26,4 +26,12 @@ Review the draft assets, native screenshots, checks, installation instructions, 
 
 After publication, verify the documented Git URL installation and download URLs from a clean Omarchy test account. Confirm that the downloaded binary reports the tagged version, setup completes, local synchronization works, and removal stops its daemon. These live distribution checks require the actual published repository and cannot be substituted by fixture tests.
 
-For a release failure, fix the problem on `main` and publish a new patch version. Do not replace existing published assets or force-move a release tag. Users can restore interrupted installations with `relai install --recover` and the previous completed installation with `relai install --rollback`.
+For a release failure, fix the problem on `main` and publish a new patch version. Do not replace existing published assets or force-move a release tag. Users can restore interrupted installations with `omai install --recover` and the previous completed installation with `omai install --rollback`.
+
+## Submit to the Omarchy marketplace
+
+After the public release is downloadable, use the [official submission form](https://github.com/omacom/omarchy-plugin-marketplace/issues/new?template=submit-plugin.yml). Submit `https://github.com/pablousx/omai` under **Developer Tools**, with **AI**, **Bar**, and **Quickshell** tags. The root `preview.png` is a fixture-only screenshot for the listing.
+
+Maintainer notes should explain the companion download and checksum verification, Git and Python requirements, the explicit setup action before configuration changes, optional Git remote, and service removal. The website, privacy policy, and terms are linked from the README. Complete the form's ownership, documentation, consent, and license checklist from the actual release contents.
+
+Watch the submission's automated validation and address any reported fixes. Marketplace listing requires maintainer approval; a submitted or validated issue is not yet an approved listing.

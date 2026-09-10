@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"crypto/sha256"
@@ -62,7 +62,7 @@ func (p Paths) rememberChoices(o SyncOptions) error {
 			found = true
 		}
 		if !found {
-			return errors.New("conflict changed or no longer exists; inspect relai conflicts again")
+			return errors.New("conflict changed or no longer exists; inspect omai conflicts again")
 		}
 	}
 	return atomicJSON(filepath.Join(p.State, "resolutions.json"), rs)

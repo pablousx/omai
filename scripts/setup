@@ -1,53 +1,53 @@
 #!/bin/bash
 set -euo pipefail
-relai_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-relai_data="${XDG_DATA_HOME:-$HOME/.local/share}/relai"
-relai_config="${XDG_CONFIG_HOME:-$HOME/.config}/relai"
-relai_source=0
-relai_only=0
-relai_binary_only=0
-for relai_arg in "$@"; do
-  case "$relai_arg" in
-    --source) relai_source=1 ;;
-    --install-only) relai_only=1 ;;
-    --build-only) relai_source=1; relai_only=1; relai_binary_only=1 ;;
+omai_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+omai_data="${XDG_DATA_HOME:-$HOME/.local/share}/omai"
+omai_config="${XDG_CONFIG_HOME:-$HOME/.config}/omai"
+omai_source=0
+omai_only=0
+omai_binary_only=0
+for omai_arg in "$@"; do
+  case "$omai_arg" in
+    --source) omai_source=1 ;;
+    --install-only) omai_only=1 ;;
+    --build-only) omai_source=1; omai_only=1; omai_binary_only=1 ;;
     --help|-h) printf '%s\n' 'Usage: scripts/setup [--source] [--install-only] [--build-only]'; exit 0 ;;
-    *) printf 'Unknown setup option: %s\n' "$relai_arg" >&2; exit 1 ;;
+    *) printf 'Unknown setup option: %s\n' "$omai_arg" >&2; exit 1 ;;
   esac
 done
-for relai_cmd in python3 git; do
-  command -v "$relai_cmd" >/dev/null || { printf 'Required command is missing: %s\n' "$relai_cmd" >&2; exit 1; }
+for omai_cmd in python3 git; do
+  command -v "$omai_cmd" >/dev/null || { printf 'Required command is missing: %s\n' "$omai_cmd" >&2; exit 1; }
 done
 umask 077
-relai_stage=$(mktemp -d "${TMPDIR:-/tmp}/relai-install.XXXXXXXX")
-trap 'rm -rf -- "$relai_stage"' EXIT
-relai_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$relai_root/manifest.json")
-[[ "$relai_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { printf '%s\n' 'Invalid release version.' >&2; exit 1; }
-if (( relai_source )); then
+omai_stage=$(mktemp -d "${TMPDIR:-/tmp}/omai-install.XXXXXXXX")
+trap 'rm -rf -- "$omai_stage"' EXIT
+omai_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$omai_root/manifest.json")
+[[ "$omai_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { printf '%s\n' 'Invalid release version.' >&2; exit 1; }
+if (( omai_source )); then
   command -v mise >/dev/null || { printf '%s\n' 'Source installation requires mise.' >&2; exit 1; }
-  relai_go=$(python3 -c 'import tomllib,sys; print(tomllib.load(open(sys.argv[1],"rb"))["tools"]["go"])' "$relai_root/mise.toml")
-  printf 'Building Relai %s with Go %s…\n' "$relai_version" "$relai_go"
-  cd -- "$relai_stage"
-  GOCACHE="$relai_stage/go-cache" GOMODCACHE="$relai_stage/modules" GOTOOLCHAIN=local CGO_ENABLED=0 GOFLAGS='' GOEXPERIMENT='' GOWORK=off \
-    mise exec "go@$relai_go" -- go -C "$relai_root" build -buildvcs=false -mod=readonly -modcacherw -trimpath -o "$relai_stage/relai" ./cmd/relai
+  omai_go=$(python3 -c 'import tomllib,sys; print(tomllib.load(open(sys.argv[1],"rb"))["tools"]["go"])' "$omai_root/mise.toml")
+  printf 'Building omai %s with Go %s…\n' "$omai_version" "$omai_go"
+  cd -- "$omai_stage"
+  GOCACHE="$omai_stage/go-cache" GOMODCACHE="$omai_stage/modules" GOTOOLCHAIN=local CGO_ENABLED=0 GOFLAGS='' GOEXPERIMENT='' GOWORK=off \
+    mise exec "go@$omai_go" -- go -C "$omai_root" build -buildvcs=false -mod=readonly -modcacherw -trimpath -o "$omai_stage/omai" ./cmd/omai
 else
   [[ $(uname -s) == Linux && $(uname -m) == x86_64 ]] || { printf '%s\n' 'Prebuilt releases support Linux x86-64. Use --source on other supported Linux architectures.' >&2; exit 1; }
   command -v curl >/dev/null || { printf '%s\n' 'Downloading a release requires curl.' >&2; exit 1; }
-  relai_archive="relai_${relai_version}_linux_amd64.tar.gz"
-  relai_url="https://github.com/pablousx/relai/releases/download/v${relai_version}"
-  printf 'Downloading Relai %s…\n' "$relai_version"
-  for relai_file in "$relai_archive" SHA256SUMS; do
+  omai_archive="omai_${omai_version}_linux_amd64.tar.gz"
+  omai_url="https://github.com/pablousx/omai/releases/download/v${omai_version}"
+  printf 'Downloading omai %s…\n' "$omai_version"
+  for omai_file in "$omai_archive" SHA256SUMS; do
     curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 10 --max-time 120 --max-filesize 67108864 --retry 2 \
-      --output "$relai_stage/$relai_file" "$relai_url/$relai_file"
+      --output "$omai_stage/$omai_file" "$omai_url/$omai_file"
   done
-  python3 "$relai_root/scripts/verify-release.py" "$relai_stage" "$relai_archive"
+  python3 "$omai_root/scripts/verify-release.py" "$omai_stage" "$omai_archive"
 fi
-chmod 700 "$relai_stage/relai"
-[[ $("$relai_stage/relai" version) == "$relai_version" ]] || { printf '%s\n' 'Binary version does not match the plugin. Installation cancelled.' >&2; exit 1; }
-relai_install_args=()
-if (( relai_binary_only )); then relai_install_args+=(--binary-only); fi
-"$relai_stage/relai" install "${relai_install_args[@]}"
-printf 'Installed Relai %s.\n' "$relai_version"
-if (( ! relai_only )) && [[ ! -f "$relai_config/config.json" ]]; then
-  "$relai_data/bin/relai" setup
+chmod 700 "$omai_stage/omai"
+[[ $("$omai_stage/omai" version) == "$omai_version" ]] || { printf '%s\n' 'Binary version does not match the plugin. Installation cancelled.' >&2; exit 1; }
+omai_install_args=()
+if (( omai_binary_only )); then omai_install_args+=(--binary-only); fi
+"$omai_stage/omai" install "${omai_install_args[@]}"
+printf 'Installed omai %s.\n' "$omai_version"
+if (( ! omai_only )) && [[ ! -f "$omai_config/config.json" ]]; then
+  "$omai_data/bin/omai" setup
 fi

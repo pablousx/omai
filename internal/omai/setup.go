@@ -1,4 +1,4 @@
-package relai
+package omai
 
 import (
 	"bufio"
@@ -66,7 +66,7 @@ func (p Paths) checkProviderRoots() error {
 	}
 	for _, entry := range [][2]string{{"CODEX_HOME", filepath.Join(p.Home, ".codex")}, {"CLAUDE_CONFIG_DIR", filepath.Join(p.Home, ".claude")}} {
 		if value := os.Getenv(entry[0]); value != "" && filepath.Clean(value) != entry[1] {
-			return fmt.Errorf("%s uses an alternate provider root; Relai manages standard global roots only and has not written provider files", entry[0])
+			return fmt.Errorf("%s uses an alternate provider root; omai manages standard global roots only and has not written provider files", entry[0])
 		}
 	}
 	return nil
@@ -144,8 +144,8 @@ func (p Paths) setupFiles(o SetupOptions) error {
 		return err
 	}
 	c := Config{Version: 1, Remote: o.Remote, Branch: o.Branch, Providers: o.Providers, Machine: o.Machine, Peers: o.Peers, PollSeconds: 2, SyncSeconds: 30}
-	if _, e := os.Lstat(filepath.Join(p.Source, "relai.json")); os.IsNotExist(e) {
-		if e = atomicJSON(filepath.Join(p.Source, "relai.json"), defaultManifest()); e != nil {
+	if _, e := os.Lstat(filepath.Join(p.Source, "omai.json")); os.IsNotExist(e) {
+		if e = atomicJSON(filepath.Join(p.Source, "omai.json"), defaultManifest()); e != nil {
 			return e
 		}
 	}
@@ -215,7 +215,7 @@ func (p Paths) GuidedSetup(in io.Reader, out io.Writer) error {
 		fmt.Fprint(out, prompt)
 		s, e := reader.ReadString('\n')
 		if e != nil {
-			return "", errors.New("setup cancelled; run relai setup to continue")
+			return "", errors.New("setup cancelled; run omai setup to continue")
 		}
 		return strings.TrimSpace(s), nil
 	}
@@ -230,7 +230,7 @@ func (p Paths) GuidedSetup(in io.Reader, out io.Writer) error {
 		return nil
 	}
 	if _, e := p.LoadConfig(); e == nil {
-		fmt.Fprintln(out, "Relai configuration is already saved. You can finish or repair the user service without changing your source.")
+		fmt.Fprintln(out, "omai configuration is already saved. You can finish or repair the user service without changing your source.")
 		if e = accept("Install the user service and start syncing? [y/N]: "); e != nil {
 			return e
 		}
@@ -238,7 +238,7 @@ func (p Paths) GuidedSetup(in io.Reader, out io.Writer) error {
 	} else if !os.IsNotExist(e) {
 		return fmt.Errorf("repair existing config.json before setup: %w", e)
 	}
-	fmt.Fprintln(out, "Relai — Your AI setup, relayed everywhere.\n\nRelevant file inventory (metadata only):")
+	fmt.Fprintln(out, "omai — Your AI setup, in sync.\n\nRelevant file inventory (metadata only):")
 	for _, entry := range p.Inventory() {
 		fmt.Fprintf(out, "  %s: %s (%s, %d bytes)\n", entry.Provider, entry.Path, entry.Kind, entry.Bytes)
 	}
@@ -285,9 +285,9 @@ func (p Paths) GuidedSetup(in io.Reader, out io.Writer) error {
 		return e
 	}
 	if e := p.Setup(SetupOptions{Remote: remote, Machine: machine, Seed: seed, Service: true}); e != nil {
-		return fmt.Errorf("setup incomplete; fix the reported issue and rerun relai setup: %w", e)
+		return fmt.Errorf("setup incomplete; fix the reported issue and rerun omai setup: %w", e)
 	}
-	fmt.Fprintln(out, "Setup complete. Edit "+p.Source+"; Relai watches it automatically.")
+	fmt.Fprintln(out, "Setup complete. Edit "+p.Source+"; omai watches it automatically.")
 	return nil
 }
 
@@ -298,8 +298,8 @@ func systemdQuote(s string) string {
 	return "\"" + s + "\""
 }
 func (p Paths) ServiceUnit() string {
-	dest := filepath.Join(p.Data, "bin/relai")
-	unit := "# Managed by Relai\n[Unit]\nDescription=Relai global configuration relay\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=" + systemdQuote(dest) + " daemon run\nRestart=on-failure\nRestartSec=5\nTimeoutStopSec=30\nUMask=0077\nNoNewPrivileges=true\nEnvironment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin\n"
+	dest := filepath.Join(p.Data, "bin/omai")
+	unit := "# Managed by omai\n[Unit]\nDescription=omai global configuration relay\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=" + systemdQuote(dest) + " daemon run\nRestart=on-failure\nRestartSec=5\nTimeoutStopSec=30\nUMask=0077\nNoNewPrivileges=true\nEnvironment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin\n"
 	for _, pair := range [][2]string{{"XDG_CONFIG_HOME", filepath.Dir(p.Config)}, {"XDG_DATA_HOME", filepath.Dir(p.Data)}, {"XDG_STATE_HOME", filepath.Dir(p.State)}} {
 		unit += "Environment=" + systemdQuote(pair[0]+"="+pair[1]) + "\n"
 	}
@@ -332,12 +332,12 @@ func (p Paths) Control(action string) error {
 	case "install":
 		return p.InstallService()
 	case "start":
-		if _, e := os.Stat(filepath.Join(filepath.Dir(p.Config), "systemd/user/relai.service")); os.IsNotExist(e) {
+		if _, e := os.Stat(filepath.Join(filepath.Dir(p.Config), "systemd/user/omai.service")); os.IsNotExist(e) {
 			return p.InstallService()
 		}
-		return systemctl("start", "relai.service")
+		return systemctl("start", "omai.service")
 	case "stop", "restart":
-		return systemctl(action, "relai.service")
+		return systemctl(action, "omai.service")
 	case "resume":
 		return p.Resume()
 	case "pause":
@@ -392,7 +392,7 @@ func (p Paths) Daemon(ctx context.Context) error {
 		}
 		// No payloads or provider file contents are written to daemon logs.
 		if e != nil && !errors.Is(e, ErrConflict) && !errors.Is(e, ErrOffline) {
-			fmt.Fprintln(os.Stderr, "Relai needs attention; run relai doctor")
+			fmt.Fprintln(os.Stderr, "omai needs attention; run omai doctor")
 		}
 		timer := time.NewTimer(time.Duration(c.PollSeconds) * time.Second)
 		select {
@@ -449,7 +449,7 @@ func (p Paths) Enroll(name, source, destination string) error {
 		next[k] = v
 	}
 	next[source] = Blob{b, 0600}
-	next["relai.json"] = Blob{jsonBytes(m), 0600}
+	next["omai.json"] = Blob{jsonBytes(m), 0600}
 	if _, _, e = parseSource(next); e != nil {
 		return e
 	}

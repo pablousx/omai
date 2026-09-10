@@ -9,14 +9,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pablousx/relai/internal/relai"
+	"github.com/pablousx/omai/internal/omai"
 )
 
 func printJSON(v any) { e := json.NewEncoder(os.Stdout); e.SetIndent("", "  "); _ = e.Encode(v) }
 func usage() {
-	fmt.Print(`Relai — Your AI setup, relayed everywhere.
+	fmt.Print(`omai — Your AI setup, in sync.
 
-Usage: relai <command> [options]
+Usage: omai <command> [options]
   setup        Guided first-run setup; --yes --remote URL for unattended setup
   inventory    List relevant file metadata without reading contents
   status       Sync health (--json for QML and automation)
@@ -31,20 +31,20 @@ Usage: relai <command> [options]
   personal add NAME --source personal/FILE --path '~/destination'
   backups list | prune [--dry-run] [--json]
   settings clear --yes
-               Stop sync and clear Relai preferences; keep configuration files
+               Stop sync and clear omai preferences; keep configuration files
   install      Install this staged binary; --binary-only skips service integration
   version
 
-Relai never installs AI runtimes or packages; manage those with mise.
+omai never installs AI runtimes or packages; manage those with mise.
 `)
 }
 func main() {
 	if e := run(os.Args[1:]); e != nil {
-		fmt.Fprintln(os.Stderr, "relai:", e)
-		if errors.Is(e, relai.ErrConflict) {
+		fmt.Fprintln(os.Stderr, "omai:", e)
+		if errors.Is(e, omai.ErrConflict) {
 			os.Exit(2)
 		}
-		if errors.Is(e, relai.ErrOffline) {
+		if errors.Is(e, omai.ErrOffline) {
 			os.Exit(3)
 		}
 		os.Exit(1)
@@ -59,7 +59,7 @@ func run(args []string) error {
 	if e != nil {
 		return e
 	}
-	p := relai.NewPaths(home)
+	p := omai.NewPaths(home)
 	hasJSON := false
 	clean := []string{}
 	for _, s := range args {
@@ -73,12 +73,12 @@ func run(args []string) error {
 	switch args[0] {
 	case "settings":
 		if len(args) != 3 || args[1] != "clear" || args[2] != "--yes" {
-			return errors.New("use settings clear --yes to stop sync and clear Relai preferences while keeping configuration files")
+			return errors.New("use settings clear --yes to stop sync and clear omai preferences while keeping configuration files")
 		}
 		if e = p.ClearSettings(); e != nil {
 			return e
 		}
-		fmt.Println("Settings cleared. Configuration files are kept. Set up Relai in the plugin to start syncing again.")
+		fmt.Println("Settings cleared. Configuration files are kept. Set up omai in the plugin to start syncing again.")
 		return nil
 	case "install":
 		fs := flag.NewFlagSet("install", flag.ContinueOnError)
@@ -97,7 +97,7 @@ func run(args []string) error {
 		return p.Install(false, *only)
 	case "backups":
 		if len(args) < 2 || (args[1] != "list" && args[1] != "prune") {
-			return errors.New("usage: relai backups list|prune [--dry-run] [--json]")
+			return errors.New("usage: omai backups list|prune [--dry-run] [--json]")
 		}
 		fs := flag.NewFlagSet("backups", flag.ContinueOnError)
 		dry := fs.Bool("dry-run", false, "preview cleanup")
@@ -124,7 +124,7 @@ func run(args []string) error {
 		}
 		return nil
 	case "version":
-		fmt.Println(relai.Version)
+		fmt.Println(omai.Version)
 		return nil
 	case "inventory":
 		printJSON(p.Inventory())
@@ -143,7 +143,7 @@ func run(args []string) error {
 		}
 		if !*yes {
 			if fs.NFlag() > 0 {
-				return errors.New("use --yes with setup flags, or run relai setup without flags for guided setup")
+				return errors.New("use --yes with setup flags, or run omai setup without flags for guided setup")
 			}
 			return p.GuidedSetup(os.Stdin, os.Stdout)
 		}
@@ -152,17 +152,17 @@ func run(args []string) error {
 			ps = strings.Split(*providers, ",")
 		}
 		printJSON(p.Inventory())
-		if e = p.Setup(relai.SetupOptions{Remote: *remote, Branch: *branch, Machine: *machine, Seed: *seed, Providers: ps, Service: !*noService}); e != nil {
+		if e = p.Setup(omai.SetupOptions{Remote: *remote, Branch: *branch, Machine: *machine, Seed: *seed, Providers: ps, Service: !*noService}); e != nil {
 			return e
 		}
-		fmt.Println("Relai configured. Source:", p.Source)
+		fmt.Println("omai configured. Source:", p.Source)
 		return nil
 	case "status":
 		s := p.Status()
 		if hasJSON {
 			printJSON(s)
 		} else {
-			fmt.Printf("Relai: %s | daemon: %t | generation: %d\n", s.Health, s.Daemon, s.Generation)
+			fmt.Printf("omai: %s | daemon: %t | generation: %d\n", s.Health, s.Daemon, s.Generation)
 			fmt.Printf("Recovery history: %d backups, %.1f MiB\n", s.BackupCount, float64(s.BackupBytes)/(1<<20))
 			if s.LastSync != "" {
 				fmt.Println("Last sync:", s.LastSync)
@@ -180,7 +180,7 @@ func run(args []string) error {
 		if hasJSON {
 			printJSON(map[string]any{"status": s, "issues": issues, "ok": len(issues) == 0})
 		} else {
-			fmt.Printf("Relai %s: %s\n", s.Version, s.Health)
+			fmt.Printf("omai %s: %s\n", s.Version, s.Health)
 			fmt.Printf("Recovery history: %d backups, %.1f MiB\n", s.BackupCount, float64(s.BackupBytes)/(1<<20))
 			if len(issues) == 0 {
 				fmt.Println("All checks passed.")
@@ -199,11 +199,11 @@ func run(args []string) error {
 		if e = fs.Parse(args[1:]); e != nil {
 			return e
 		}
-		s, e := p.Sync(relai.SyncOptions{LocalOnly: *local})
+		s, e := p.Sync(omai.SyncOptions{LocalOnly: *local})
 		if hasJSON {
 			printJSON(s)
 		} else {
-			fmt.Printf("Relai: %s\n", s.Health)
+			fmt.Printf("omai: %s\n", s.Health)
 		}
 		return e
 	case "conflicts":
@@ -228,14 +228,14 @@ func run(args []string) error {
 					fmt.Println("(deleted)")
 					continue
 				}
-				var b relai.Blob
+				var b omai.Blob
 				if json.Unmarshal(v, &b) == nil && b.Data != nil {
 					fmt.Printf("%s\n", b.Data)
 				} else {
 					fmt.Printf("%s\n", v)
 				}
 			}
-			fmt.Printf("\nResolve with: relai resolve %q --take CHOICE\n", c.Key)
+			fmt.Printf("\nResolve with: omai resolve %q --take CHOICE\n", c.Key)
 			return nil
 		}
 		cs, e := p.Conflicts()
@@ -255,7 +255,7 @@ func run(args []string) error {
 		return nil
 	case "resolve":
 		if len(args) < 2 {
-			return errors.New("usage: relai resolve KEY --take CHOICE")
+			return errors.New("usage: omai resolve KEY --take CHOICE")
 		}
 		key := args[1]
 		fs := flag.NewFlagSet("resolve", flag.ContinueOnError)
@@ -283,7 +283,7 @@ func run(args []string) error {
 		if !found {
 			return errors.New("no matching conflict choice")
 		}
-		o := relai.SyncOptions{}
+		o := omai.SyncOptions{}
 		if strings.HasPrefix(key, "git/") {
 			o.GitChoices = map[string]string{key: *take}
 		} else {
@@ -299,11 +299,11 @@ func run(args []string) error {
 		if e = p.Rollback(id); e != nil {
 			return e
 		}
-		fmt.Println("Rolled back. Automatic sync is paused; inspect the source, then relai daemon resume.")
+		fmt.Println("Rolled back. Automatic sync is paused; inspect the source, then omai daemon resume.")
 		return nil
 	case "daemon":
 		if len(args) != 2 {
-			return errors.New("usage: relai daemon run|install|start|stop|restart|pause|resume")
+			return errors.New("usage: omai daemon run|install|start|stop|restart|pause|resume")
 		}
 		if args[1] == "run" {
 			return p.Daemon(context.Background())
@@ -311,7 +311,7 @@ func run(args []string) error {
 		return p.Control(args[1])
 	case "personal":
 		if len(args) < 3 || args[1] != "add" {
-			return errors.New("usage: relai personal add NAME --source personal/FILE --path '~/destination'")
+			return errors.New("usage: omai personal add NAME --source personal/FILE --path '~/destination'")
 		}
 		fs := flag.NewFlagSet("personal add", flag.ContinueOnError)
 		source := fs.String("source", "", "canonical path")

@@ -29,7 +29,7 @@ states = ["setup", "setup-form", "setup-submit", "setup-failure", "update", "cle
 if args.state:
     assert args.state in states
     states = [args.state]
-with tempfile.TemporaryDirectory(prefix="relai-qml-") as tmp:
+with tempfile.TemporaryDirectory(prefix="omai-qml-") as tmp:
     stage = Path(tmp)
     home, runtime = stage / "home", stage / "runtime"
     home.mkdir()
@@ -45,16 +45,16 @@ with tempfile.TemporaryDirectory(prefix="relai-qml-") as tmp:
     shutil.copytree(root / "scripts", stage / "plugin/scripts")
     fixture = stage / "fixture.json"
     record = stage / "commands.jsonl"
-    fake_binary = home / ".local/share/relai/bin/relai"
+    fake_binary = home / ".local/share/omai/bin/omai"
     fake_binary.parent.mkdir(parents=True)
     fake = f'''#!{sys.executable}
 import json, os, pathlib, sys, time
 if sys.argv[1]=="status":
  print(pathlib.Path({str(fixture)!r}).read_text())
- sys.exit(1 if os.environ["RELAI_QML_STATE"]=="failed" else 0)
+ sys.exit(1 if os.environ["OMAI_QML_STATE"]=="failed" else 0)
 with pathlib.Path({str(record)!r}).open("a") as out: out.write(json.dumps(sys.argv[1:])+"\\n")
 time.sleep(0.15)
-state=os.environ["RELAI_QML_STATE"]
+state=os.environ["OMAI_QML_STATE"]
 if sys.argv[1]=="doctor":
  if state=="readout-failure":print("invalid JSON");sys.exit(1)
  print(json.dumps(dict(ok=state!="diagnostics-error",issues=["Remote is unavailable"] if state=="diagnostics-error" else [])))
@@ -64,11 +64,11 @@ if sys.argv[1]=="backups":
  sys.exit(0)
 if sys.argv[1]=="conflicts":
  import base64
- print(json.dumps(dict(key="providers/codex/instructions.md",reason="Both computers changed this file",choices=dict(local=dict(data=base64.b64encode(("Long saved text "*2000 if state=="review-long" else "Hello café ✦").encode()).decode()),remote=None))))
+ print(json.dumps(dict(key="providers/codex/instructions.md",reason="Both computers changed this file",choices=dict(local=dict(data=base64.b64encode(("Long saved text ✦ "*20000 if state=="review-long" else "Hello café ✦").encode()).decode()),remote=None))))
  sys.exit(0)
 if sys.argv[1]=="rollback":sys.exit(0)
 if sys.argv[1:]==["settings","clear","--yes"]:
- if os.environ["RELAI_QML_STATE"]=="clear-failure":
+ if os.environ["OMAI_QML_STATE"]=="clear-failure":
   print("Could not stop the daemon.",file=sys.stderr);sys.exit(1)
  p=pathlib.Path({str(fixture)!r});report=json.loads(p.read_text())
  report.update(configured=False,daemon=False,health="setup");p.write_text(json.dumps(report));sys.exit(0)
@@ -79,7 +79,7 @@ sys.exit(2)
 import json, os, pathlib, sys, time
 with pathlib.Path({str(record)!r}).open("a") as out: out.write(json.dumps(["plugin-setup"]+sys.argv[1:])+"\\n")
 time.sleep(0.15)
-if os.environ["RELAI_QML_STATE"]=="setup-failure" and "--source" not in sys.argv:
+if os.environ["OMAI_QML_STATE"]=="setup-failure" and "--source" not in sys.argv:
  print("Release unavailable. Your choices are saved in the form.",file=sys.stderr)
  sys.exit(1)
 p=pathlib.Path({str(fixture)!r})
@@ -121,19 +121,19 @@ p.write_text(json.dumps(report))
         if state != "setup":
             fake_binary.write_text(fake)
             fake_binary.chmod(0o700)
-        env["RELAI_QML_STATE"] = state
+        env["OMAI_QML_STATE"] = state
         screenshot = str(args.screenshots / (state + ".png")) if args.screenshots and state in ("setup", "setup-form", "healthy", "conflict", "stopped", "diagnostics", "diagnostics-error", "history", "empty-history", "review", "readout-failure", "rollback", "details", "paused", "offline", "mismatch") else ""
         # Use actual panel keyboard signals, including conflict buttons. A
         # synthetic screenshot grabs only our fixture content, never the desktop.
         script = '''import QtQuick
 import Quickshell
-import "plugin/qml" as Relai
+import "plugin/qml" as Omai
 ShellRoot {
   id: testRoot
   property string state: STATE
   property string capturePath: CAPTURE
   property int phase: 0
-  function fail(message) { console.error("RELAI_QML_FAILED", state, message); Qt.exit(1) }
+  function fail(message) { console.error("OMAI_QML_FAILED", state, message); Qt.exit(1) }
   function findObject(object, name, seen) {
     if (!object || seen.indexOf(object)>=0) return null
     seen.push(object)
@@ -151,13 +151,13 @@ ShellRoot {
     }
     return null
   }
-  function done() { console.log("RELAI_QML_PASSED",state);Qt.quit() }
+  function done() { console.log("OMAI_QML_PASSED",state);Qt.quit() }
   PanelWindow {
     anchors { top: true; left: true }
     implicitWidth: 32; implicitHeight: 32
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
-    Relai.Relai { id: widget }
+    Omai.Omai { id: widget }
   }
   Timer {
     interval: 1200; running: true; repeat: true
@@ -186,7 +186,7 @@ ShellRoot {
         if(widget.busy){testRoot.fail("setup still running");return}
         if(testRoot.state === "setup-failure" && widget.setupFailed) {
           if(!widget.setupOpen || widget.actionError.indexOf("Release unavailable")<0){testRoot.fail("setup error not displayed in form");return}
-          testRoot.findObject(widget,"relai-setup-source",[]).clicked()
+          testRoot.findObject(widget,"omai-setup-source",[]).clicked()
           testRoot.phase=4;return
         }
         if(widget.setupOpen || !widget.report.configured || widget.updateNeeded || widget.actionError){testRoot.fail("setup/update did not finish");return}
@@ -208,9 +208,9 @@ ShellRoot {
         if (!widget.opened) {widget.open();return}
         widget.actionError="";widget.actionMessage=""
         widget.now=new Date("2026-09-08T12:00:30Z").getTime()
-        var scroll=testRoot.findObject(widget,"relai-scroll",[])
+        var scroll=testRoot.findObject(widget,"omai-scroll",[])
         if (!scroll || scroll.contentY !== 0) {testRoot.fail("panel did not open at the top");return}
-        var content=testRoot.findObject(widget,"relai-panel-content",[])
+        var content=testRoot.findObject(widget,"omai-panel-content",[])
         if (!content) {testRoot.fail("cannot find preview content");return}
         var capture = content
         while (capture.parent && !("borderSpec" in capture)) capture = capture.parent
@@ -230,7 +230,7 @@ ShellRoot {
         widget.runAction(widget.viewActions[0])
         if(widget.clearConfirm || widget.busy){testRoot.fail("reset cancellation failed");return}
         widget.runAction(widget.advancedActions.find(x=>x.args[0]==="confirm-clear"))
-        var confirm=testRoot.findObject(widget,"relai-clear-confirm",[])
+        var confirm=testRoot.findObject(widget,"omai-clear-confirm",[])
         if(!confirm){testRoot.fail("missing reset confirmation");return}
         confirm.clicked();confirm.clicked()
         if(!widget.busy){testRoot.fail("confirmed reset did not launch");return}
@@ -239,13 +239,13 @@ ShellRoot {
       if(testRoot.state.indexOf("setup-")===0){
         widget.runAction(widget.baseActions[0])
         if(!widget.setupOpen || widget.busy){testRoot.fail("setup did not open inline");return}
-        var remote=testRoot.findObject(widget,"relai-setup-remote",[])
-        var machine=testRoot.findObject(widget,"relai-setup-machine",[])
-        var seed=testRoot.findObject(widget,"relai-setup-seed",[])
-        var cancel=testRoot.findObject(widget,"relai-setup-cancel",[])
-        var submit=testRoot.findObject(widget,"relai-setup-submit",[])
+        var remote=testRoot.findObject(widget,"omai-setup-remote",[])
+        var machine=testRoot.findObject(widget,"omai-setup-machine",[])
+        var seed=testRoot.findObject(widget,"omai-setup-seed",[])
+        var cancel=testRoot.findObject(widget,"omai-setup-cancel",[])
+        var submit=testRoot.findObject(widget,"omai-setup-submit",[])
         if(!remote||!machine||!seed||!cancel||!submit){testRoot.fail("setup fields missing");return}
-        if(!testRoot.findObject(widget,"relai-keyboard",[]).blocked){testRoot.fail("panel shortcuts intercept form typing");return}
+        if(!testRoot.findObject(widget,"omai-keyboard",[]).blocked){testRoot.fail("panel shortcuts intercept form typing");return}
         remote.text="git@example.com:personal/ai.git";machine.text="My laptop";seed.currentIndex=1
         cancel.clicked()
         if(widget.setupOpen||widget.busy){testRoot.fail("cancel launched setup");return}
@@ -314,7 +314,7 @@ ShellRoot {
       var expected=testRoot.state==="actions"?"conflict":testRoot.state
       if(widget.report.health!==expected){testRoot.fail("unexpected health "+widget.report.health);return}
       if(testRoot.state==="actions"){
-        var keyboard=testRoot.findObject(widget,"relai-keyboard",[])
+        var keyboard=testRoot.findObject(widget,"omai-keyboard",[])
         if (!keyboard){testRoot.fail("missing keyboard catcher");return}
         widget.selectedAction=0
         keyboard.moveRequested(0,1)
@@ -346,7 +346,7 @@ ShellRoot {
         result = subprocess.run(["quickshell", "--no-color", "-p", str(stage / "shell.qml")],
                                 env=env, text=True, capture_output=True, timeout=15)
         output = result.stdout + result.stderr
-        if result.returncode or "RELAI_QML_PASSED " + state not in output or "ERROR" in output or "WARN scene" in output:
+        if result.returncode or "OMAI_QML_PASSED " + state not in output or "ERROR" in output or "WARN scene" in output:
             raise SystemExit(output)
         if state == "actions":
             commands = [json.loads(line) for line in record.read_text().splitlines()]

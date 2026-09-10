@@ -6,16 +6,16 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: relai-release-${{ github.ref }}
+  group: omai-release-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   checks:
     uses: ./.github/workflows/ci.yml
   native:
-    # This dedicated test account must have Omarchy and a Wayland session.
+    # Use a dedicated account or an ephemeral runner with the host home inaccessible.
     # Never route untrusted pull requests to this runner.
-    if: github.repository == 'pablousx/relai' && startsWith(github.ref, 'refs/tags/v')
-    runs-on: [self-hosted, Linux, X64, omarchy]
+    if: github.repository == 'pablousx/omai' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: [self-hosted, Linux, X64, omarchy, omai-release]
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -33,7 +33,7 @@ jobs:
           if-no-files-found: error
   draft:
     needs: [checks, native]
-    if: github.repository == 'pablousx/relai' && startsWith(github.ref, 'refs/tags/v')
+    if: github.repository == 'pablousx/omai' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -54,4 +54,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" --verify-tag --draft --title "Relai $GITHUB_REF_NAME" --notes-file docs/release-notes.md build/release/*.tar.gz build/release/SHA256SUMS LICENSE
+          gh release create "$GITHUB_REF_NAME" --verify-tag --draft --title "omai $GITHUB_REF_NAME" --notes-file docs/release-notes.md build/release/*.tar.gz build/release/SHA256SUMS LICENSE
