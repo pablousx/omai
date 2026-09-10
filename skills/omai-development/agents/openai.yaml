@@ -1,0 +1,4 @@
+interface:
+  display_name: "omai development"
+  short_description: "Develop and test omai safely"
+  default_prompt: "Use $omai-development to implement and verify the requested change in omai."

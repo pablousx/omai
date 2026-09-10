@@ -1,0 +1,4 @@
+interface:
+  display_name: "omai releases"
+  short_description: "Release omai and update its marketplace listing"
+  default_prompt: "Use $omai-release to prepare and publish the requested omai version or marketplace update."
