@@ -1,0 +1,52 @@
+[
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something is not working"
+  },
+  {
+    "name": "enhancement",
+    "color": "a2eeef",
+    "description": "New feature or improvement"
+  },
+  {
+    "name": "documentation",
+    "color": "0075ca",
+    "description": "Documentation changes"
+  },
+  {
+    "name": "dependencies",
+    "color": "0366d6",
+    "description": "Dependency updates"
+  },
+  {
+    "name": "automation",
+    "color": "5319e7",
+    "description": "CI and repository automation"
+  },
+  {
+    "name": "good first issue",
+    "color": "7057ff",
+    "description": "Suitable for a first contribution"
+  },
+  {
+    "name": "help wanted",
+    "color": "008672",
+    "description": "Contributions welcome"
+  },
+  {
+    "name": "question",
+    "color": "d876e3",
+    "description": "Further information requested"
+  },
+  {
+    "name": "breaking-change",
+    "color": "b60205",
+    "description": "Requires migration or changes compatibility"
+  },
+  {
+    "name": "skip-changelog",
+    "color": "ededed",
+    "description": "Omit from generated release notes"
+  }
+]

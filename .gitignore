@@ -2,3 +2,13 @@
 *.test
 coverage.out
 __pycache__/
+
+# Common local files
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.log
+*.py[cod]
+.venv/

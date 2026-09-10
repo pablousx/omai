@@ -1,0 +1,29 @@
+name: Repository configuration
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: repository-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  repository-checks:
+    name: Repository checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install configuration validator dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-yaml
+      - name: Validate repository configuration
+        run: python3 .github/scripts/check_repository.py
+      - name: Test setup tools
+        run: python3 -m unittest discover -s .github/tests -v
+      - name: Check whitespace
+        run: git show --format= --check HEAD

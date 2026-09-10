@@ -1,0 +1,38 @@
+{
+  "name": "Open source CI",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [
+    {
+      "actor_id": 66285146,
+      "actor_type": "User",
+      "bypass_mode": "always"
+    }
+  ],
+  "conditions": {
+    "ref_name": {
+      "include": [
+        "~DEFAULT_BRANCH"
+      ],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          {
+            "context": "Repository checks",
+            "integration_id": 15368
+          },
+          {
+            "context": "check",
+            "integration_id": 15368
+          }
+        ]
+      }
+    }
+  ]
+}
