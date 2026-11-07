@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 import re
 import subprocess
-import tomllib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--binary", type=Path)
@@ -18,7 +17,6 @@ assert re.fullmatch(r"\d+\.\d+\.\d+", version), "release version must be stable 
 assert manifest["schemaVersion"] == 1 and manifest["id"] == "pablousx.omai"
 assert f'const Version = "{version}"' in (root / "internal/omai/model.go").read_text(), "Go version mismatch"
 assert f'"version":"{version}"' in (root / "scripts/omai").read_text(), "launcher version mismatch"
-assert tomllib.loads((root / "mise.toml").read_text())["tools"]["go"], "missing Go pin"
 if args.tag:
     assert args.tag == "v" + version, "tag does not match manifest"
 if args.binary:

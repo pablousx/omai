@@ -24,7 +24,7 @@ Use a dedicated remote you control. The synchronized instructions, hooks, skills
 
 The plugin installer clones and enables the plugin. The panel's setup action downloads the exact manifest version over HTTPS and verifies its checksum, archive, and embedded version before installation. If that version is already installed, setup reuses it and can run offline. Cancelling the form preserves its draft until the shell reloads and starts no installation or synchronization.
 
-For an unpublished local copy, the panel offers **Build local copy and retry** after an installation failure. This explicit option requires mise and the pinned Go compiler; it keeps setup inside the plugin. Developer installation and optional headless commands are documented in [Contributing](CONTRIBUTING.md#local-plugin-development).
+For an unpublished local copy, the panel offers **Build local copy and retry** after an installation failure. This explicit option requires an installed Go compiler; it keeps setup inside the plugin. Developer installation and optional headless commands are documented in [Contributing](CONTRIBUTING.md#local-plugin-development).
 
 To start setup again, open **Advanced → Clear settings (keeps configs)** and confirm. omai stops automatic sync and clears its connection settings and preferences. Your canonical configs, provider files, Git history, and recovery backups stay in place. The panel returns to the setup form.
 
@@ -135,10 +135,10 @@ Source, provider files, the installed binary, Git history, and recovery data rem
 ## Development and publishing
 
 ```sh
-mise run check
-mise run audit
-mise run qml                  # Native Omarchy/Wayland session required
-mise run release              # Deterministic binary archive and SHA256SUMS
+scripts/check
+go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
+python3 scripts/test-qml.py   # Native Omarchy/Wayland session required
+python3 scripts/package-release.py
 ```
 
 Tests use disposable homes, local bare remotes, and fixture services. They do not change your AI configuration or publish source. See [architecture](docs/architecture.md), [validation](docs/validation.md), [contributing](CONTRIBUTING.md), and the [publishing runbook](docs/publishing.md).

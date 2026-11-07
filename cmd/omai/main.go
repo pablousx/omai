@@ -35,7 +35,7 @@ Usage: omai <command> [options]
   install      Install this staged binary; --binary-only skips service integration
   version
 
-omai never installs AI runtimes or packages; manage those with mise.
+omai never installs AI runtimes or packages.
 `)
 }
 func main() {

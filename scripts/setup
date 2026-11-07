@@ -24,12 +24,11 @@ trap 'rm -rf -- "$omai_stage"' EXIT
 omai_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$omai_root/manifest.json")
 [[ "$omai_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { printf '%s\n' 'Invalid release version.' >&2; exit 1; }
 if (( omai_source )); then
-  command -v mise >/dev/null || { printf '%s\n' 'Source installation requires mise.' >&2; exit 1; }
-  omai_go=$(python3 -c 'import tomllib,sys; print(tomllib.load(open(sys.argv[1],"rb"))["tools"]["go"])' "$omai_root/mise.toml")
-  printf 'Building omai %s with Go %s…\n' "$omai_version" "$omai_go"
+  command -v go >/dev/null || { printf '%s\n' 'Source installation requires Go.' >&2; exit 1; }
+  printf 'Building omai %s with Go…\n' "$omai_version"
   cd -- "$omai_stage"
   GOCACHE="$omai_stage/go-cache" GOMODCACHE="$omai_stage/modules" GOTOOLCHAIN=local CGO_ENABLED=0 GOFLAGS='' GOEXPERIMENT='' GOWORK=off \
-    mise exec "go@$omai_go" -- go -C "$omai_root" build -buildvcs=false -mod=readonly -modcacherw -trimpath -o "$omai_stage/omai" ./cmd/omai
+    go -C "$omai_root" build -buildvcs=false -mod=readonly -modcacherw -trimpath -o "$omai_stage/omai" ./cmd/omai
 else
   [[ $(uname -s) == Linux && $(uname -m) == x86_64 ]] || { printf '%s\n' 'Prebuilt releases support Linux x86-64. Use --source on other supported Linux architectures.' >&2; exit 1; }
   command -v curl >/dev/null || { printf '%s\n' 'Downloading a release requires curl.' >&2; exit 1; }

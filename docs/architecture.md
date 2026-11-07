@@ -38,7 +38,7 @@ The code uses Go's standard library and generic TOML, JSONC and YAML parsers. It
 
 ## Installation and operations
 
-The bootstrap reads the plugin manifest, downloads its exact tagged Linux archive over HTTPS, verifies SHA-256 and archive members, and checks the executable version. Explicit source builds obtain their compiler pin from `mise.toml`. Staging happens outside the read-only plugin checkout.
+The bootstrap reads the plugin manifest, downloads its exact tagged Linux archive over HTTPS, verifies SHA-256 and archive members, and checks the executable version. Explicit source builds use the Go compiler available on `PATH`. Staging happens outside the read-only plugin checkout.
 
 The plugin's inline setup form invokes `scripts/plugin-setup` with an argument array. The bridge reuses a matching installed executable, otherwise runs the verified bootstrap without terminal input, then submits the form's configuration to the backend. Setup and updates share the existing installation lock and recovery path. Opening or cancelling the form never invokes installation. Source building requires the panel's explicit retry action; download failures never silently select source execution.
 

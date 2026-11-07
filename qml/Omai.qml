@@ -905,7 +905,7 @@ Panel {
               onActiveFocusChanged: if (activeFocus) root.revealItem(this)
               text: "Build local copy and retry"
               foreground: root.foreground
-              hint: "Requires mise and the pinned Go compiler."
+              hint: "Requires an installed Go compiler."
               enabled: !root.busy
               onClicked: root.beginSetup(root.setupMode, root.setupArguments, true)
             }

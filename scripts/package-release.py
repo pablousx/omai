@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a deterministic Linux x86-64 release using the pinned Go compiler."""
+"""Build a deterministic Linux x86-64 release using Go."""
 import argparse
 import gzip
 import hashlib
@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 import subprocess
 import tarfile
-import tomllib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--tag")
@@ -17,10 +16,6 @@ parser.add_argument("--output", type=Path, default=Path("build/release"))
 args = parser.parse_args()
 root = Path(__file__).resolve().parent.parent
 version = json.loads((root / "manifest.json").read_text())["version"]
-pin = tomllib.loads((root / "mise.toml").read_text())["tools"]["go"]
-actual = subprocess.check_output(["go", "env", "GOVERSION"], cwd=root, text=True).strip()
-if actual != "go" + pin:
-    raise SystemExit(f"Release builds require Go {pin}; found {actual}. Run through mise.")
 out = args.output.resolve()
 out.mkdir(parents=True, exist_ok=True)
 binary = out / "omai"

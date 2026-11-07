@@ -2,13 +2,13 @@
 
 omai targets Linux global configuration and Omarchy's Quattro plugin interface. Keep provider-specific semantics explicit and preserve fields outside supported bindings. Changes to source or state formats require compatibility fixtures and documented migration behavior.
 
-Use the Go compiler pinned in `mise.toml`:
+Use the Go compiler available on `PATH`:
 
 ```sh
-mise run check
-mise run audit
-mise run qml
-mise run release
+scripts/check
+go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
+python3 scripts/test-qml.py
+python3 scripts/package-release.py
 ```
 
 `check` runs formatting checks, race tests, vet, shell syntax, fresh-binary CLI integration, installer tests, metadata checks, and the native manifest validator when installed. Install ShellCheck to include shell lint locally; CI requires it. QML validation requires Omarchy and a Wayland session. It creates independent fixture panels and can save screenshots with `python3 scripts/test-qml.py --screenshots build/previews`.
@@ -19,7 +19,7 @@ Keep documentation and compatibility references aligned with adapter behavior. A
 
 ## Local plugin development
 
-Before public distribution, copy the manifest, `qml/`, `scripts/`, `cmd/`, `internal/`, `go.mod`, `go.sum`, `mise.toml`, and license into an Omarchy user plugin folder named `pablousx.omai`. Stage the complete directory outside `~/.config/omarchy/plugins/` before moving it into place: copying individual source files into a watched plugin causes repeated shell reloads. Enable it with `omarchy plugin enable pablousx.omai --section right` after discovery. Normal setup then happens through **Set up omai** in the panel. If a release is unavailable, choose **Build local copy and retry** there.
+Before public distribution, copy the manifest, `qml/`, `scripts/`, `cmd/`, `internal/`, `go.mod`, `go.sum`, and license into an Omarchy user plugin folder named `pablousx.omai`. Stage the complete directory outside `~/.config/omarchy/plugins/` before moving it into place: copying individual source files into a watched plugin causes repeated shell reloads. Enable it with `omarchy plugin enable pablousx.omai --section right` after discovery. Normal setup then happens through **Set up omai** in the panel. If a release is unavailable, choose **Build local copy and retry** there.
 
 For compiler or headless development, the lower-level commands remain available:
 

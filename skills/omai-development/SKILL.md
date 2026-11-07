@@ -17,33 +17,33 @@ For recovery changes, follow the transaction and installation invariants in AGEN
 
 ## Run the right checks
 
-Use `mise.toml` for the compiler, not a remembered Go version. Typical iteration:
+Use the Go compiler available on `PATH`. Typical iteration:
 
 ```sh
-mise exec -- go test ./internal/omai -run TestRelevantCase -count=1
-mise run check
+go test ./internal/omai -run TestRelevantCase -count=1
+scripts/check
 ```
 
-Replace `TestRelevantCase` with an existing or newly added regression name. `mise run check` builds a fresh binary before CLI/installer integration. A standalone `mise run e2e` or `mise run install-test` also builds through task dependencies. Passing an old `build/omai` directly to a script can test stale code.
+Replace `TestRelevantCase` with an existing or newly added regression name. `scripts/check` builds a fresh binary before CLI/installer integration. Passing an old `build/omai` directly to a script can test stale code.
 
 For QML/status-contract changes:
 
 ```sh
-mise run validate
+omarchy plugin validate .
 python3 scripts/test-qml.py --state healthy
-mise run qml
+python3 scripts/test-qml.py
 python3 scripts/test-qml.py --screenshots build/previews
 ```
 
 Read `states` in `scripts/test-qml.py` for current scenario names. Review the fixture captures for the affected states; refresh `docs/screenshots/` and the root `preview.png` when their visible behavior changes. The suite requires a real Wayland connection and installed Omarchy UI modules. It creates its own temporary home/runtime and screenshots only fixture panels.
 
-If sandbox restrictions prevent cache writes, use writable temporary `GOCACHE` and `GOMODCACHE` directories and the installed compiler matching the `mise.toml` pin. If mise itself cannot write its state, invoke that exact compiler's executable rather than falling back to an arbitrary `go` on PATH. Request only the execution access needed for native sockets or downloads; a blocked socket is not a failed application test.
+If sandbox restrictions prevent cache writes, use writable temporary `GOCACHE` and `GOMODCACHE` directories. Request only the execution access needed for native sockets or downloads; a blocked socket is not a failed application test.
 
 ## Keep the installed desktop separate
 
 Prefer fixture panels over installing every edit. When the user asks for a live development install, use [local installation](../omai-local-install/SKILL.md) and the staging guidance in Contributing. Stage complete directories outside the watched plugin tree before replacement. A normal Git-managed installed checkout should remain updateable; preserve local edits instead of resetting them.
 
-Do not run `scripts/setup --source`, `--install-only`, or `--build-only` against the real home merely to build or test: all of these can install an executable. `mise run build` only builds into `build/`.
+Do not run `scripts/setup --source`, `--install-only`, or `--build-only` against the real home merely to build or test: all of these can install an executable. `go build` only builds into `build/`.
 
 ## Finish the change
 

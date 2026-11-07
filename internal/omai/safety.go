@@ -225,7 +225,7 @@ func validateServer(s Server) error {
 			return errors.New("invalid command")
 		}
 		if filepath.IsAbs(s.Command) {
-			return errors.New("use a PATH executable managed by mise, not a machine path")
+			return errors.New("use a PATH executable, not a machine path")
 		}
 	}
 	if s.URL != "" {

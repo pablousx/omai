@@ -6,7 +6,7 @@ omai is a Linux Omarchy Quattro plugin plus a Go companion that synchronizes sup
 
 - Repository: `pablousx/omai`; plugin ID: `pablousx.omai`; entry point: `qml/Omai.qml`.
 - Website: `https://pablousx.github.io/omai/`; source: `site/`.
-- Read the current version from `manifest.json` and the Go pin from `mise.toml`. Do not assume a version, release status, installed state, or marketplace approval from an earlier session.
+- Read the current version from `manifest.json`. Do not assume a version, release status, installed state, or marketplace approval from an earlier session.
 - Repository skills are maintained in `skills/`. Read only the relevant skill and its needed references, even if your host does not list these skills automatically. Command examples assume this checkout's root.
 
 | Task | Skill |
@@ -55,13 +55,13 @@ Develop in this checkout and test in disposable homes. Installed copies under `~
 
 ## Verification proportional to the change
 
-Use the compiler in `mise.toml`; `mise run ...` selects it. No provider login, paid model call, real Git sync destination, or user's service is needed for automated tests.
+Use the Go compiler available on `PATH`. No provider login, paid model call, real Git sync destination, or user's service is needed for automated tests.
 
 | Change | Relevant checks |
 | --- | --- |
-| Go behavior | Focused regression test, then `mise run check` |
-| QML or status contract | `mise run qml`, `mise run validate`; CLI checks when the contract changes |
-| Bootstrap, service, recovery | `mise run check`; `python3 scripts/test-install.py build/omai --verify-unit` |
+| Go behavior | Focused regression test, then `scripts/check` |
+| QML or status contract | `python3 scripts/test-qml.py`, `omarchy plugin validate .`; CLI checks when the contract changes |
+| Bootstrap, service, recovery | `scripts/check`; `python3 scripts/test-install.py build/omai --verify-unit` |
 | Workflow/repository settings | Commands in `GITHUB_SETUP.md` plus pinned actionlint from CI |
 | Static site | `python3 scripts/check-site.py`, `node --check site/assets/site.js`, relevant browser checks |
 | Guides/skills only | Skill frontmatter, metadata, local links, repository checker, and `git diff --check`; no application rebuild solely for prose |

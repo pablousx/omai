@@ -299,7 +299,7 @@ func systemdQuote(s string) string {
 }
 func (p Paths) ServiceUnit() string {
 	dest := filepath.Join(p.Data, "bin/omai")
-	unit := "# Managed by omai\n[Unit]\nDescription=omai global configuration relay\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=" + systemdQuote(dest) + " daemon run\nRestart=on-failure\nRestartSec=5\nTimeoutStopSec=30\nUMask=0077\nNoNewPrivileges=true\nEnvironment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin\n"
+	unit := "# Managed by omai\n[Unit]\nDescription=omai global configuration relay\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=" + systemdQuote(dest) + " daemon run\nRestart=on-failure\nRestartSec=5\nTimeoutStopSec=30\nUMask=0077\nNoNewPrivileges=true\nEnvironment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin\n"
 	for _, pair := range [][2]string{{"XDG_CONFIG_HOME", filepath.Dir(p.Config)}, {"XDG_DATA_HOME", filepath.Dir(p.Data)}, {"XDG_STATE_HOME", filepath.Dir(p.State)}} {
 		unit += "Environment=" + systemdQuote(pair[0]+"="+pair[1]) + "\n"
 	}

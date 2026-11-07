@@ -52,7 +52,7 @@ Then use **Update omai** in the panel. For an authorized unattended update, the 
 
 The plugin checkout and companion are separate artifacts. Verify their versions agree afterward. Preserve paused/stopped state and existing settings; do not run setup again, start a stopped daemon, or replace a failed download with an unrequested source build. If fast-forward fails, preserve the installed edits and determine how to reconcile them rather than resetting the checkout.
 
-For an explicitly requested unpublished development build, follow [Contributing](../../CONTRIBUTING.md#local-plugin-development). Stage the complete plugin outside the watched directory before moving it into place. Source builds need mise and the repository's Go pin; a Git checkout that updates normally is preferable for routine use.
+For an explicitly requested unpublished development build, follow [Contributing](../../CONTRIBUTING.md#local-plugin-development). Stage the complete plugin outside the watched directory before moving it into place. Source builds need an installed Go compiler; a Git checkout that updates normally is preferable for routine use.
 
 ## Verify or recover
 

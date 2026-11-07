@@ -34,7 +34,7 @@ For authentication failures, check access to the dedicated repository from your 
 
 ## Setup and daemon lifecycle
 
-The service lives at `$XDG_CONFIG_HOME/systemd/user/omai.service`. It runs the binary from the omai data directory with a private umask, `NoNewPrivileges`, bounded stop time, and a restart policy. Its PATH includes the user's mise shims and local commands. omai does not enable systemd lingering.
+The service lives at `$XDG_CONFIG_HOME/systemd/user/omai.service`. It runs the binary from the omai data directory with a private umask, `NoNewPrivileges`, bounded stop time, and a restart policy. Its PATH includes the user's local commands. omai does not enable systemd lingering.
 
 Open the bar plugin, choose **Set up omai**, complete the inline form, and click **Start syncing**. The panel installs the matching executable if necessary, saves configuration, and starts the service. Opening or cancelling the form has no setup side effects. The following commands are optional administration interfaces:
 
@@ -62,7 +62,7 @@ The backend requires `omai settings clear --yes` for automation. It serializes a
 
 ## Binary updates and recovery
 
-Update the plugin checkout through `omarchy plugin update pablousx.omai`, then select **Update omai**. Installation runs inside the panel without a terminal. The exact manifest version is downloaded over HTTPS; checksum, archive-member, size, and binary-version validation happen before installation. A missing release produces an error without replacing the installation. For unpublished local copies, **Build local copy and retry** explicitly selects a source build using mise and the pinned compiler.
+Update the plugin checkout through `omarchy plugin update pablousx.omai`, then select **Update omai**. Installation runs inside the panel without a terminal. The exact manifest version is downloaded over HTTPS; checksum, archive-member, size, and binary-version validation happen before installation. A missing release produces an error without replacing the installation. For unpublished local copies, **Build local copy and retry** explicitly selects a source build using the installed Go compiler.
 
 The updater writes `state/install-pending.json` before stopping a running daemon or changing files. The record covers binary, previous binary, launcher, unit, and prior running/enabled state. Installation is serialized separately from configuration transactions. Successful updates restart an already-running daemon and preserve paused/stopped state. Activation failure restores the preimages; external edits block restoration instead of being overwritten.
 

@@ -44,7 +44,7 @@ with tempfile.TemporaryDirectory(prefix="omai-install-test-") as tmp:
     plugin = root / "readonly plugin"
     plugin.mkdir()
     shutil.copytree(repo / "scripts", plugin / "scripts")
-    for name in ("manifest.json", "mise.toml"):
+    for name in ("manifest.json",):
         shutil.copy2(repo / name, plugin / name)
     fixtures, tools_dir = root / "fixtures", root / "tools"
     fixtures.mkdir()
@@ -62,8 +62,8 @@ if tool=="curl":
  assert "--proto" in args and "--proto-redir" in args
  target=args[args.index("--output")+1]
  shutil.copyfile(root/"fixtures"/args[-1].rsplit("/",1)[1],target)
-elif tool=="mise":
- assert args[0]=="exec" and args[1]=="go@"+os.environ["OMAI_TEST_GO"]
+elif tool=="go":
+ assert args[0]=="-C"
  target=args[args.index("-o")+1]
  shutil.copyfile(os.environ["OMAI_TEST_BINARY"],target)
  module=pathlib.Path(os.environ["GOMODCACHE"])/"fixture-module"
@@ -91,12 +91,10 @@ elif tool=="systemctl":
    time.sleep(60)
  else: sys.exit(1)
 '''.replace("PYTHON", sys.executable)
-    for tool in ("curl", "systemctl", "mise"):
+    for tool in ("curl", "systemctl", "go"):
         path = tools_dir / tool
         path.write_text(fake_tool)
         path.chmod(0o700)
-    import tomllib
-    pin = tomllib.loads((repo / "mise.toml").read_text())["tools"]["go"]
     home = root / 'home with space % and "quote"'
     home.mkdir()
     temp = root / "tmp"
@@ -107,7 +105,7 @@ elif tool=="systemctl":
                XDG_DATA_HOME=str(root / "custom data"), XDG_STATE_HOME=str(root / "custom state"),
                XDG_CACHE_HOME=str(root / "cache"), XDG_RUNTIME_DIR=str(root / "runtime"), TMPDIR=str(temp),
                PATH=str(tools_dir) + ":" + env["PATH"], OMAI_INSTALL_TEST=str(root),
-               OMAI_TEST_VERSION=version, OMAI_TEST_GO=pin, OMAI_TEST_BINARY=str(binary))
+               OMAI_TEST_VERSION=version, OMAI_TEST_BINARY=str(binary))
     dest = Path(env["XDG_DATA_HOME"]) / "omai/bin/omai"
     state = Path(env["XDG_STATE_HOME"]) / "omai"
     config = Path(env["XDG_CONFIG_HOME"]) / "omai"

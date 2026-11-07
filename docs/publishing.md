@@ -13,9 +13,9 @@ The native release job is mandatory. Without an available runner and a passing Q
 ## Prepare a release
 
 1. Update `manifest.json`, the Go `Version` constant, the launcher's setup status, `tests/fixtures/status.json`, and the successful-version literals/assertions in `scripts/test-qml.py` together. Preserve deliberately mismatched versions and historical documentation. `scripts/check-release.py` checks production version consistency; the native suite additionally checks QML fixture agreement. Keep canonical/local schema versions at `1` unless an explicit migration is implemented.
-2. Update the changelog, release notes, compatibility record, and any affected operations instructions. The Go toolchain pin lives only in `mise.toml`; CI and source setup read it there.
-3. Run `mise run check`, `mise run audit`, and `mise run qml`. Verify clean setup, relay between two disposable machines, update/recovery, and service removal. The installer tests simulate release downloads, systemd, failed activation, and a killed updater.
-4. Run `mise run release`. Inspect `build/release/omai_VERSION_linux_amd64.tar.gz` and `SHA256SUMS`; the archive contains only `omai` and `LICENSE`. Build twice if changing packaging to verify deterministic checksums.
+2. Update the changelog, release notes, compatibility record, and any affected operations instructions. CI and source setup use the Go compiler available on `PATH`.
+3. Run `scripts/check`, the vulnerability audit, and `python3 scripts/test-qml.py`. Verify clean setup, relay between two disposable machines, update/recovery, and service removal. The installer tests simulate release downloads, systemd, failed activation, and a killed updater.
+4. Run `python3 scripts/package-release.py`. Inspect `build/release/omai_VERSION_linux_amd64.tar.gz` and `SHA256SUMS`; the archive contains only `omai` and `LICENSE`. Build twice if changing packaging to verify deterministic checksums.
 5. Capture fixture panels with `python3 scripts/test-qml.py --screenshots build/previews`, inspect them, and refresh `docs/screenshots/` when UI changes. No real desktop or provider content belongs in these images.
 
 ## Create and publish

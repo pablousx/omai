@@ -30,8 +30,8 @@ Configuration checks use Python 3.12+ with PyYAML (`python3-yaml` on Debian/Ubun
 ```bash
 python3 .github/scripts/check_repository.py
 python3 -m unittest discover -s .github/tests -v
-mise run check
-mise run audit
+scripts/check
+go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
 ```
 
 [Dependabot](.github/dependabot.yml) checks Actions and any configured package ecosystems weekly. [Release categories](.github/release.yml) are available when generating GitHub release notes; publishing remains a maintainer action. [CODEOWNERS](.github/CODEOWNERS) routes review requests to pablousx without requiring a second maintainer.

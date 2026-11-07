@@ -83,7 +83,7 @@ Commands are files under `commands/NAME.md`. Claude/OpenCode receive native comm
 
 ## MCP
 
-For shared `omai.json` MCP entries, a server has exactly one `command` or HTTP(S) `url`. Local commands must be PATH executables; use mise to provision them. `args` is an ordered string array. URLs may not contain credentials, queries or fragments. Only stdio and HTTP transports are portable in omai 1.0.
+For shared `omai.json` MCP entries, a server has exactly one `command` or HTTP(S) `url`. Local commands must be PATH executables provisioned by the user. `args` is an ordered string array. URLs may not contain credentials, queries or fragments. Only stdio and HTTP transports are portable in omai 1.0.
 
 `env` is a list of environment variable names, sorted during normalization. Codex receives `env_vars`; Claude receives `${NAME}` references; OpenCode receives `{env:NAME}` references. `bearer_env` uses the provider's environment-based bearer-header representation. omai never expands these names into credential values. Keep values in each tool's ordinary local environment or authentication store.
 
